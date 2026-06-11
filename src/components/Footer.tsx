@@ -16,6 +16,8 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li><Link href="/hunde" className="hover:text-blue-200 transition-colors">Vores hunde</Link></li>
               <li><Link href="/hvalpe" className="hover:text-blue-200 transition-colors">Hvalpe</Link></li>
+              <li><Link href="/resultater" className="hover:text-blue-200 transition-colors">Resultater</Link></li>
+              <li><Link href="/nyheder" className="hover:text-blue-200 transition-colors">Nyheder</Link></li>
               <li><Link href="/om-os" className="hover:text-blue-200 transition-colors">Om os</Link></li>
               <li><Link href="/kontakt" className="hover:text-blue-200 transition-colors">Kontakt</Link></li>
             </ul>
@@ -29,28 +31,31 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* DKK Badge */}
-        <div className="flex justify-center my-10">
-          <div className="relative w-32 h-32">
-            {/* Outer ring */}
-            <div className="absolute inset-0 rounded-full bg-red-700 shadow-lg" />
-            {/* Inner ring border */}
-            <div className="absolute inset-1.5 rounded-full border-2 border-red-300/60" />
-            {/* Inner circle */}
-            <div className="absolute inset-3 rounded-full bg-red-800 flex flex-col items-center justify-center text-center">
-              <span className="text-[10px] font-bold text-red-100 uppercase tracking-widest leading-tight">Dansk</span>
-              <span className="text-[10px] font-bold text-red-100 uppercase tracking-widest leading-tight">Kennel Klub</span>
-              <div className="w-8 h-px bg-red-300/50 my-1" />
-              <span className="text-[9px] font-semibold text-red-200 uppercase tracking-wider">Registreret</span>
-              <span className="text-[9px] font-semibold text-red-200 uppercase tracking-wider">Opdræt</span>
+        {/* DKK Opdrætteruddannelse + Udtagelse */}
+        <div className="mt-12 border-t border-[#1a365d] pt-10">
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+            {/* DKK Logo */}
+            <div className="flex-shrink-0">
+              <img
+                src="/dkk-badge.jpg"
+                alt="HAR GENNEMGÅET DKKs OPDRÆTTERUDDANNELSE"
+                className="w-32 h-32 rounded-full object-cover shadow-lg"
+              />
             </div>
-            {/* Decorative stars */}
-            <span className="absolute top-0.5 left-1/2 -translate-x-1/2 text-red-200 text-[8px]">★ ★ ★</span>
-            <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 text-red-200 text-[8px]">★ ★ ★</span>
+
+            {/* DKK Udtagelse */}
+            <div className="text-center md:text-left">
+              <h3 className="text-blue-50 font-bold text-lg mb-3">DKK Udtagelse</h3>
+              <p className="text-sm leading-relaxed text-blue-100/80 italic">
+                &ldquo;Særdeles pæne forhold. Pæne kasser og bokse. Der er rent og ryddeligt. 
+                Gode ude- og luftearealer. Alle hunde er motiveret, venlige og imødekommende.&rdquo;
+              </p>
+              <p className="text-xs text-blue-100/50 mt-2">— Dansk Kennel Klub, efter besøg i vores kennel</p>
+            </div>
           </div>
         </div>
 
-        <div className="border-t border-[#1a365d] mt-4 pt-6 text-center text-xs text-blue-100/50">
+        <div className="border-t border-[#1a365d] mt-10 pt-6 text-center text-xs text-blue-100/50">
           © {new Date().getFullYear()} Kennel Team Englund. Alle rettigheder forbeholdes.
         </div>
       </div>

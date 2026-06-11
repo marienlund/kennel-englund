@@ -8,6 +8,24 @@ import { mockDogs } from '@/lib/mock-data'
 const femaleDogs = mockDogs.filter((d) => d.gender === 'female')
 const maleDogs = mockDogs.filter((d) => d.gender === 'male')
 
+// Extra dogs from the original kennelenglund.dk site (not yet in mock data)
+const extraFemales = [
+  { name: "Team Englund's Vega" },
+  { name: "Qutie von der Frisenklippe" },
+  { name: "Bellona vom Haus Mojü" },
+  { name: "Team Englund's Aqua" },
+  { name: "Lærkbo Jackie" },
+  { name: "Team Englund's Bessi" },
+  { name: "Team Englund's Eia" },
+  { name: "Team Englund's Gabby" },
+]
+
+const extraMales = [
+  { name: "Gen-Chi's Hjalte" },
+  { name: "Team Englund's Cooper" },
+  { name: "Team Englund's Basse" },
+]
+
 type DropdownItem = {
   href: string
   label: string
@@ -94,6 +112,15 @@ export default function Navbar() {
                           {dog.name}
                         </Link>
                       ))}
+                      {/* Extra dogs from original site */}
+                      {(l.dropdownType === 'females' ? extraFemales : extraMales).map((dog) => (
+                        <span
+                          key={dog.name}
+                          className="block px-4 py-2 text-sm text-slate-500"
+                        >
+                          {dog.name}
+                        </span>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -145,6 +172,15 @@ export default function Navbar() {
                         >
                           {dog.name}
                         </Link>
+                      ))}
+                      {/* Extra dogs from original site */}
+                      {(l.dropdownType === 'females' ? extraFemales : extraMales).map((dog) => (
+                        <span
+                          key={dog.name}
+                          className="block px-3 py-1.5 rounded-md text-sm text-blue-200/50"
+                        >
+                          {dog.name}
+                        </span>
                       ))}
                     </div>
                   )}
