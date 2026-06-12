@@ -62,13 +62,23 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
           {/* LEFT: Photo area */}
           <div className="space-y-4">
             {/* Main photo */}
-            <div className="aspect-[4/3] bg-gradient-to-br from-[#0c2340]/5 to-[#1e3a5f]/10 rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center shadow-sm">
-              <div className="text-center">
-                <span className="text-8xl block mb-3 opacity-40">
-                  {dog.gender === 'male' ? '🐕' : '🐕‍🦺'}
-                </span>
-                <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Foto kommer snart</span>
-              </div>
+            <div className="aspect-[4/3] bg-gradient-to-br from-[#0c2340]/5 to-[#1e3a5f]/10 rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+              {dog.photo_url ? (
+                <img
+                  src={dog.photo_url}
+                  alt={dog.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="text-center">
+                    <span className="text-8xl block mb-3 opacity-40">
+                      {dog.gender === 'male' ? '🐕' : '🐕‍🦺'}
+                    </span>
+                    <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Foto kommer snart</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Thumbnail gallery placeholder */}

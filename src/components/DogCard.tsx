@@ -34,11 +34,21 @@ export default function DogCard({ dog }: { dog: Dog }) {
   return (
     <Link href={`/hunde/${dog.id}`} className="group block">
       <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow overflow-hidden border border-slate-200">
-        {/* Placeholder image */}
-        <div className="aspect-[4/3] bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-          <span className="text-6xl opacity-60 group-hover:scale-110 transition-transform">
-            {dog.gender === 'male' ? '🐕' : '🐕‍🦺'}
-          </span>
+        {/* Photo */}
+        <div className="aspect-[4/3] bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden">
+          {dog.photo_url ? (
+            <img
+              src={dog.photo_url}
+              alt={dog.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-6xl opacity-60 group-hover:scale-110 transition-transform">
+                {dog.gender === 'male' ? '🐕' : '🐕‍🦺'}
+              </span>
+            </div>
+          )}
         </div>
         <div className="p-4">
           <div className="flex items-start justify-between gap-2 mb-2">

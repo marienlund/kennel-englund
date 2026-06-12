@@ -11,6 +11,7 @@ export interface Dog {
   mental_description: string | null
   training_results: string | null
   achievements: string | null
+  photo_url?: string | null
   is_featured: boolean
   created_at: string
   updated_at: string
