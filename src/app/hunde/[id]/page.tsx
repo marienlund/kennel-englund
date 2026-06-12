@@ -1,7 +1,7 @@
 import { getDog, getDogs } from '@/lib/data'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Shield, Brain, GraduationCap, Trophy, Calendar, Users } from 'lucide-react'
+import { ArrowLeft, Trophy, GraduationCap } from 'lucide-react'
 import type { Metadata } from 'next'
 
 function calculateAge(birthdate: string): number {
@@ -28,43 +28,6 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 }
 
-function InfoSection({
-  icon: Icon,
-  title,
-  children,
-}: {
-  icon: React.ElementType
-  title: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="bg-white rounded-xl border border-slate-200 p-6">
-      <h2 className="font-bold text-lg text-slate-900 mb-3 flex items-center gap-2">
-        <Icon size={20} className="text-blue-700" />
-        {title}
-      </h2>
-      {children}
-    </div>
-  )
-}
-
-function HealthRow({ label, value }: { label: string; value: string | null }) {
-  if (!value) return null
-  const isGood = value === 'HD-A' || value === 'AD 0/0' || value === 'Fri'
-  return (
-    <div className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
-      <span className="text-slate-600 text-sm">{label}</span>
-      <span
-        className={`font-semibold text-sm px-2.5 py-0.5 rounded-full ${
-          isGood ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'
-        }`}
-      >
-        {value}
-      </span>
-    </div>
-  )
-}
-
 export default async function DogDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const dog = await getDog(id)
@@ -76,78 +39,175 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
     ? new Date(dog.birthdate).toLocaleDateString('da-DK', { year: 'numeric', month: 'long', day: 'numeric' })
     : null
 
+  const healthItems = [
+    { label: 'HD', value: dog.hd_score },
+    { label: 'AD', value: dog.ad_score },
+    { label: 'OCD', value: dog.ocd_status },
+  ].filter((item) => item.value)
+
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-      <Link
-        href="/hunde"
-        className="inline-flex items-center gap-1 text-blue-700 hover:text-blue-800 text-sm font-medium mb-6"
-      >
-        <ArrowLeft size={16} /> Tilbage til alle hunde
-      </Link>
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+        {/* Back button */}
+        <Link
+          href="/hunde"
+          className="inline-flex items-center gap-2 text-[#0c2340] hover:text-[#2563eb] text-sm font-medium mb-8 group transition-colors"
+        >
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+          Tilbage til alle hunde
+        </Link>
 
-      {/* Hero area */}
-      <div className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden mb-8">
-        <div className="aspect-[16/7] bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-          <span className="text-8xl opacity-50">{dog.gender === 'male' ? '🐕' : '🐕‍🦺'}</span>
-        </div>
-        <div className="p-6 sm:p-8">
-          <div className="flex flex-wrap items-center gap-3 mb-2">
-            <span
-              className={`text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
-                dog.gender === 'male' ? 'bg-blue-100 text-blue-800' : 'bg-pink-100 text-pink-800'
-              }`}
-            >
-              {dog.gender === 'male' ? '♂ Han' : '♀ Tæve'}
-            </span>
+        {/* Main two-column layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          {/* LEFT: Photo area */}
+          <div className="space-y-4">
+            {/* Main photo */}
+            <div className="aspect-[4/3] bg-gradient-to-br from-[#0c2340]/5 to-[#1e3a5f]/10 rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center shadow-sm">
+              <div className="text-center">
+                <span className="text-8xl block mb-3 opacity-40">
+                  {dog.gender === 'male' ? '🐕' : '🐕‍🦺'}
+                </span>
+                <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Foto kommer snart</span>
+              </div>
+            </div>
+
+            {/* Thumbnail gallery placeholder */}
+            <div className="grid grid-cols-4 gap-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="aspect-square bg-slate-100 rounded-lg border border-slate-200 flex items-center justify-center"
+                >
+                  <span className="text-slate-300 text-xs">📷</span>
+                </div>
+              ))}
+            </div>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">{dog.name}</h1>
-          <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-slate-500">
-            {birthFormatted && (
-              <span className="flex items-center gap-1">
-                <Calendar size={14} /> Født {birthFormatted}{age !== null && ` (${age} år)`}
-              </span>
-            )}
-            {(dog.sire_name || dog.dam_name) && (
-              <span className="flex items-center gap-1">
-                <Users size={14} />
-                {dog.sire_name && <>Far: {dog.sire_name}</>}
-                {dog.sire_name && dog.dam_name && ' · '}
-                {dog.dam_name && <>Mor: {dog.dam_name}</>}
-              </span>
+
+          {/* RIGHT: Dog info */}
+          <div className="space-y-6">
+            {/* Name and gender */}
+            <div>
+              <div className="flex items-center gap-3 mb-1">
+                <span
+                  className={`inline-flex items-center justify-center w-9 h-9 rounded-full text-lg font-bold ${
+                    dog.gender === 'male'
+                      ? 'bg-[#0c2340] text-blue-200'
+                      : 'bg-pink-700 text-pink-200'
+                  }`}
+                >
+                  {dog.gender === 'male' ? '♂' : '♀'}
+                </span>
+                <span
+                  className={`text-xs font-semibold uppercase tracking-wider ${
+                    dog.gender === 'male' ? 'text-[#2563eb]' : 'text-pink-600'
+                  }`}
+                >
+                  {dog.gender === 'male' ? 'Han' : 'Tæve'}
+                </span>
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-bold text-[#0c2340] leading-tight">
+                {dog.name}
+              </h1>
+            </div>
+
+            {/* Structured info table */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <table className="w-full">
+                <tbody className="divide-y divide-slate-100">
+                  {birthFormatted && (
+                    <tr>
+                      <td className="px-5 py-3.5 text-sm font-semibold text-slate-500 w-36 bg-slate-50/50">
+                        Født
+                      </td>
+                      <td className="px-5 py-3.5 text-sm text-[#0c2340] font-medium">
+                        {birthFormatted}
+                        {age !== null && (
+                          <span className="text-slate-400 ml-1.5">({age} år)</span>
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                  {dog.sire_name && (
+                    <tr>
+                      <td className="px-5 py-3.5 text-sm font-semibold text-slate-500 w-36 bg-slate-50/50">
+                        Far
+                      </td>
+                      <td className="px-5 py-3.5 text-sm text-[#0c2340] font-medium">
+                        {dog.sire_name}
+                      </td>
+                    </tr>
+                  )}
+                  {dog.dam_name && (
+                    <tr>
+                      <td className="px-5 py-3.5 text-sm font-semibold text-slate-500 w-36 bg-slate-50/50">
+                        Mor
+                      </td>
+                      <td className="px-5 py-3.5 text-sm text-[#0c2340] font-medium">
+                        {dog.dam_name}
+                      </td>
+                    </tr>
+                  )}
+                  {healthItems.map((item) => (
+                    <tr key={item.label}>
+                      <td className="px-5 py-3.5 text-sm font-semibold text-slate-500 w-36 bg-slate-50/50">
+                        {item.label}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span
+                          className={`inline-block text-sm font-semibold px-2.5 py-0.5 rounded-full ${
+                            item.value === 'HD-A' || item.value === 'AD 0/0' || item.value === 'Fri'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-slate-100 text-slate-600 border border-slate-200'
+                          }`}
+                        >
+                          {item.value}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mental description - expandable style */}
+            {dog.mental_description && (
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-[#0c2340] mb-2">
+                  Mentalbeskrivelse
+                </h2>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {dog.mental_description}
+                </p>
+              </div>
             )}
           </div>
         </div>
-      </div>
 
-      {/* Info grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Health */}
-        <InfoSection icon={Shield} title="Sundhed">
-          <HealthRow label="Hofter (HD)" value={dog.hd_score} />
-          <HealthRow label="Albuer (AD)" value={dog.ad_score} />
-          <HealthRow label="OCD" value={dog.ocd_status} />
-        </InfoSection>
+        {/* Full-width sections below */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          {/* Training */}
+          {dog.training_results && (
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+              <h2 className="font-bold text-[#0c2340] mb-3 flex items-center gap-2">
+                <GraduationCap size={20} className="text-[#2563eb]" />
+                Uddannelse & Resultater
+              </h2>
+              <p className="text-sm text-slate-600 leading-relaxed">{dog.training_results}</p>
+            </div>
+          )}
 
-        {/* Mental */}
-        {dog.mental_description && (
-          <InfoSection icon={Brain} title="Mentalbeskrivelse">
-            <p className="text-slate-600 text-sm leading-relaxed">{dog.mental_description}</p>
-          </InfoSection>
-        )}
-
-        {/* Training */}
-        {dog.training_results && (
-          <InfoSection icon={GraduationCap} title="Uddannelse & Resultater">
-            <p className="text-slate-600 text-sm leading-relaxed">{dog.training_results}</p>
-          </InfoSection>
-        )}
-
-        {/* Achievements */}
-        {dog.achievements && (
-          <InfoSection icon={Trophy} title="Præstationer">
-            <p className="text-slate-600 text-sm leading-relaxed">{dog.achievements}</p>
-          </InfoSection>
-        )}
+          {/* Achievements */}
+          {dog.achievements && (
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+              <h2 className="font-bold text-[#0c2340] mb-3 flex items-center gap-2">
+                <Trophy size={20} className="text-[#2563eb]" />
+                Præstationer
+              </h2>
+              <p className="text-sm text-slate-600 leading-relaxed">{dog.achievements}</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
