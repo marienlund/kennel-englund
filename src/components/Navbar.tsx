@@ -10,20 +10,31 @@ const maleDogs = mockDogs.filter((d) => d.gender === 'male')
 
 // Extra dogs from the original kennelenglund.dk site (not yet in mock data)
 const extraFemales = [
-  { name: "Team Englund's Vega" },
-
-
-  { name: "Team Englund's Aqua" },
-  { name: "Lærkbo Jackie" },
-  { name: "Team Englund's Bessi" },
-
-  { name: "Team Englund's Gabby" },
+  { name: "Bayogi Yenka" },
+  { name: "Team Englund's Berta" },
+  { name: "Toftegården Nessi" },
 ]
 
 const extraMales = [
-  { name: "Gen-Chi's Hjalte" },
-  { name: "Team Englund's Cooper" },
-  { name: "Team Englund's Basse" },
+  { name: "Team Englund's Unik" },
+  { name: "Alonso vom Verbotenen Wald" },
+  { name: "Aldo Mersak" },
+  { name: "CZ Nirreterrit" },
+  { name: "Coast Strikers Alvin" },
+  { name: "Audi Catario Mikels" },
+  { name: "Nederholm's Quik" },
+  { name: "Hasco z Lomeckeho Polesi" },
+  { name: "Team Englund's Jack" },
+  { name: "Irck de la Hutte du Berger" },
+  { name: "Bayogi Eika" },
+  { name: "Toftegården Nero" },
+  { name: "Sund Hund Yang" },
+  { name: "Amager's Urban" },
+  { name: "Jen-Ager's Odin" },
+  { name: "Coudy z Udoli Upy" },
+  { name: "Hulgård's Yupp" },
+  { name: "Gerry aus der Zigeunerkuhle" },
+  { name: "ChaDe's Atos" },
 ]
 
 type DropdownItem = {
