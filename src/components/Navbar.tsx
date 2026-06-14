@@ -16,7 +16,7 @@ const extraFemales = [
   { name: "Team Englund's Aqua" },
   { name: "Lærkbo Jackie" },
   { name: "Team Englund's Bessi" },
-  { name: "Team Englund's Eia" },
+
   { name: "Team Englund's Gabby" },
 ]
 
