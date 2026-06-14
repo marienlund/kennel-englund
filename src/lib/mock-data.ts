@@ -7,7 +7,7 @@ export const mockDogs: Dog[] = [
     gender: 'female',
     birthdate: '2020-03-15',
     photo_url: '/dog1.jpg',
-    working_dog_url: 'https://www.working-dog.com/dogs-ede/Donja-vom-Haus-Englund',
+    working_dog_url: 'C:\Users\hpj82\.openclaw\workspace\kennel-englund\src\lib\mock-data.ts`,
     sire_name: 'Rex von der Schiffslache',
     dam_name: 'Bella vom Haus Englund',
     hd_score: 'HD-A',
