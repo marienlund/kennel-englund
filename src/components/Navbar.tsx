@@ -12,7 +12,7 @@ const maleDogs = mockDogs.filter((d) => d.gender === 'male')
 const extraFemales = [
   { name: "Team Englund's Vega" },
 
-  { name: "Bellona vom Haus Mojü" },
+
   { name: "Team Englund's Aqua" },
   { name: "Lærkbo Jackie" },
   { name: "Team Englund's Bessi" },
