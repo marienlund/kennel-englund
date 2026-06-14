@@ -88,6 +88,7 @@ export const mockDogs: Dog[] = [
     mental_description: null,
     training_results: 'Tysk index 75',
     achievements: 'Har d. 1. februar født 4 hanner og 3 tæver.',
+    extra_info: 'Qutie von der Frisenklippe bliver start december 2025 parret med Spike vom Adlerschrei. Begge har store kvaliteter. Hvalpene vil egnet sig perfekt til sport og tjenestehunde. Begge hunde har sundhed langt over middel, og begge er avlskåret. Vi planlægger nyt kuld i løbet af 2025. Reservationer er påbegyndt.\n\nFar til hvalpene er Alonso vom Verbotenen Wald.\n\nQutie er ud af en virkelig god brugshundelinie.\n\nVi har ledt en del efter endnu en tæve til vores avlsarbejde.\n\nDa vi fik muligheden for at købe Qutie måtte vi selvfølgelig gøre det.',
     working_dog_url: 'https://www.working-dog.com/dogs-details/7210096/Qutie-von-der-Friesenklippe',
     photo_url: '/qutie.jpg',
     is_featured: false,

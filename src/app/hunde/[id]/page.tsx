@@ -2,6 +2,7 @@ import { getDog, getDogs } from '@/lib/data'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Trophy, GraduationCap } from 'lucide-react'
+import ExtraInfoBox from '@/components/ExtraInfoBox'
 import type { Metadata } from 'next'
 
 function calculateAge(birthdate: string): number {
@@ -203,6 +204,9 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
                 </p>
               </div>
             )}
+
+            {/* Øvrige oplysninger - expandable */}
+            {dog.extra_info && <ExtraInfoBox text={dog.extra_info} />}
           </div>
         </div>
 
