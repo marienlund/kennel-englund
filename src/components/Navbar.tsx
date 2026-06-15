@@ -9,9 +9,7 @@ const femaleDogs = mockDogs.filter((d) => d.gender === 'female')
 const maleDogs = mockDogs.filter((d) => d.gender === 'male')
 
 // Extra dogs from the original kennelenglund.dk site (not yet in mock data)
-const extraFemales = [
-  { name: "Toftegården Nessi" },
-]
+const extraFemales: { name: string }[] = []
 
 const extraMales = [
   { name: "Team Englund's Unik" },
