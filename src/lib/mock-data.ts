@@ -366,7 +366,7 @@ export const mockDogs: Dog[] = [
     training_results: 'Aktiv politihund GR. 1. Mønstret i gr. 1. Avlskåret. Index 119. DM: N/N.',
     achievements: 'DM vinder af vinderklassen 2018, Dansk Politihundeforening. Nederholms Quik har parret Team Englunds Fanni.',
     extra_info: 'Super sundhedsstatistik på 10 kuld i DK: 13 hunde røntgenfotograferet – 12 stk. med HD:A + AD:0, 1 stk. med HD:B + AD:0.',
-    working_dog_url: null,
+    working_dog_url: 'https://www.working-dog.com/dogs-details/2906116/Nederholms%20Quik',
     photo_url: '/quik.jpg',
     is_featured: false,
     created_at: '2024-01-01T00:00:00Z',
