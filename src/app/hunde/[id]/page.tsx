@@ -96,98 +96,66 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
           </div>
 
           {/* RIGHT: Dog info */}
-          <div className="space-y-4">
-            {/* Name and gender */}
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <span
-                  className={`inline-flex items-center justify-center w-9 h-9 rounded-full text-lg font-bold ${
-                    dog.gender === 'male'
-                      ? 'bg-[#0c2340] text-blue-200'
-                      : 'bg-pink-700 text-pink-200'
-                  }`}
-                >
-                  {dog.gender === 'male' ? '♂' : '♀'}
-                </span>
-                <span
-                  className={`text-xs font-semibold uppercase tracking-wider ${
-                    dog.gender === 'male' ? 'text-[#2563eb]' : 'text-pink-600'
-                  }`}
-                >
-                  {dog.gender === 'male' ? 'Han' : 'Tæve'}
-                </span>
-              </div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-[#0c2340] leading-tight">
-                {dog.name}
-              </h1>
-              {dog.sire_name && <p className="text-sm text-slate-500 mt-1">Far: {dog.sire_name}</p>}
-              {dog.dam_name && <p className="text-sm text-slate-500">Mor: {dog.dam_name}</p>}
-            </div>
+          <div className="space-y-6">
+            {/* Name */}
+            <h1 className="text-3xl sm:text-4xl font-bold text-[#0c2340] leading-tight">
+              {dog.name}
+            </h1>
 
-            {/* Individual boxes grid */}
-            <div className="grid grid-cols-2 gap-3">
-              {/* Fødselsdato / Alder */}
+            {/* Simple table layout */}
+            <div className="space-y-3 text-sm">
               {birthFormatted && (
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Fødselsdato</p>
-                  <p className="text-sm font-bold text-[#0c2340]">{birthFormatted}</p>
-                  {age !== null && <p className="text-xs text-slate-500 mt-0.5">{age} år</p>}
+                <div className="flex gap-4">
+                  <span className="text-slate-500 w-28 flex-shrink-0 font-medium">Født d.</span>
+                  <span className="text-slate-900">{birthFormatted}{age !== null ? ` (${age} år)` : ''}</span>
                 </div>
               )}
-
-              {/* HD */}
+              {dog.sire_name && (
+                <div className="flex gap-4">
+                  <span className="text-slate-500 w-28 flex-shrink-0 font-medium">Far:</span>
+                  <span className="text-slate-900">{dog.sire_name}</span>
+                </div>
+              )}
+              {dog.dam_name && (
+                <div className="flex gap-4">
+                  <span className="text-slate-500 w-28 flex-shrink-0 font-medium">Mor:</span>
+                  <span className="text-slate-900">{dog.dam_name}</span>
+                </div>
+              )}
               {dog.hd_score && (
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">HD</p>
-                  <span className={`inline-block text-sm font-bold px-2.5 py-0.5 rounded-full ${
-                    dog.hd_score === 'HD-A' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'
-                  }`}>{dog.hd_score}</span>
+                <div className="flex gap-4">
+                  <span className="text-slate-500 w-28 flex-shrink-0 font-medium">HD:</span>
+                  <span className="text-slate-900">{dog.hd_score}</span>
                 </div>
               )}
-
-              {/* AD */}
               {dog.ad_score && (
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">AD</p>
-                  <span className={`inline-block text-sm font-bold px-2.5 py-0.5 rounded-full ${
-                    dog.ad_score === 'AD 0/0' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'
-                  }`}>{dog.ad_score}</span>
+                <div className="flex gap-4">
+                  <span className="text-slate-500 w-28 flex-shrink-0 font-medium">AD:</span>
+                  <span className="text-slate-900">{dog.ad_score}</span>
                 </div>
               )}
-
-              {/* OCD */}
               {dog.ocd_status && (
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">OCD</p>
-                  <span className={`inline-block text-sm font-bold px-2.5 py-0.5 rounded-full ${
-                    dog.ocd_status === 'Fri' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'
-                  }`}>{dog.ocd_status}</span>
+                <div className="flex gap-4">
+                  <span className="text-slate-500 w-28 flex-shrink-0 font-medium">OCD:</span>
+                  <span className="text-slate-900">{dog.ocd_status}</span>
                 </div>
               )}
-
-              {/* Uddannelse */}
               {dog.training_results && (
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 col-span-2">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1.5">
-                    <GraduationCap size={14} className="text-[#2563eb]" />
-                    Uddannelse
-                  </p>
-                  <p className="text-sm text-slate-700 leading-relaxed">{dog.training_results}</p>
+                <div className="flex gap-4">
+                  <span className="text-slate-500 w-28 flex-shrink-0 font-medium">Uddannelse:</span>
+                  <span className="text-slate-900">{dog.training_results}</span>
                 </div>
               )}
-
-              {/* Working Dog database link */}
               {dog.working_dog_url && (
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 col-span-2">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Database</p>
+                <div className="flex gap-4">
+                  <span className="text-slate-500 w-28 flex-shrink-0 font-medium">Link til WD:</span>
                   <a
                     href={dog.working_dog_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-[#2563eb] hover:text-[#0c2340] transition-colors"
+                    className="text-[#2563eb] hover:text-[#0c2340] underline transition-colors"
                   >
-                    📊 Se på Working Dog
-                    <span className="text-xs">↗</span>
+                    Se på Working Dog ↗
                   </a>
                 </div>
               )}
@@ -195,33 +163,23 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
 
             {/* Mental description */}
             {dog.mental_description && (
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-[#0c2340] mb-2">
-                  Mentalbeskrivelse
-                </h2>
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  {dog.mental_description}
-                </p>
+              <div className="border-t border-slate-200 pt-4">
+                <h2 className="text-sm font-bold text-[#0c2340] mb-2">Mentalbeskrivelse</h2>
+                <p className="text-sm text-slate-600 leading-relaxed">{dog.mental_description}</p>
+              </div>
+            )}
+
+            {/* Achievements */}
+            {dog.achievements && (
+              <div className="border-t border-slate-200 pt-4">
+                <h2 className="text-sm font-bold text-[#0c2340] mb-2">Præstationer</h2>
+                <p className="text-sm text-slate-600 leading-relaxed">{dog.achievements}</p>
               </div>
             )}
 
             {/* Øvrige oplysninger - expandable */}
             {dog.extra_info && <ExtraInfoBox text={dog.extra_info} />}
           </div>
-        </div>
-
-        {/* Full-width sections below */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-          {/* Achievements */}
-          {dog.achievements && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <h2 className="font-bold text-[#0c2340] mb-3 flex items-center gap-2">
-                <Trophy size={20} className="text-[#2563eb]" />
-                Præstationer
-              </h2>
-              <p className="text-sm text-slate-600 leading-relaxed">{dog.achievements}</p>
-            </div>
-          )}
         </div>
       </div>
     </div>
