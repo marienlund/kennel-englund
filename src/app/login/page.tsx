@@ -22,13 +22,14 @@ export default function LoginPage() {
       const supabase = createClient()
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) {
-        setError('Forkert email eller adgangskode.')
+        setError(`Login fejl: ${error.message}`)
       } else {
         router.push('/admin/hunde')
         router.refresh()
       }
-    } catch {
-      setError('Noget gik galt. Prøv igen.')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Ukendt fejl'
+      setError(`Noget gik galt: ${msg}`)
     } finally {
       setLoading(false)
     }
