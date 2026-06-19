@@ -22,8 +22,8 @@ export default function Footer() {
               <li><Link href="/kontakt" className="hover:text-blue-200 transition-colors">Kontakt</Link></li>
             </ul>
           </div>
-          <div className="flex items-center justify-center">
-            <img src="/logo.jpg" alt="Team Englund Working Dogs" className="w-32 h-auto rounded-lg shadow-lg" />
+          <div className="flex items-center justify-start md:justify-center md:-ml-4">
+            <img src="/logo.jpg" alt="Team Englund Working Dogs" className="w-44 h-auto rounded-lg shadow-lg" />
           </div>
           <div>
             <h3 className="text-blue-50 font-bold text-lg mb-3">Kontakt</h3>
