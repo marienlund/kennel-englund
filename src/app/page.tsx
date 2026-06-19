@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import DogCard from '@/components/DogCard'
 import NewsCard from '@/components/NewsCard'
-import HeroSlideshow from '@/components/HeroSlideshow'
 import { getFeaturedDogs, getLatestNews } from '@/lib/data'
 import { ArrowRight, Heart, Shield, Award } from 'lucide-react'
 
@@ -11,8 +10,23 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero Slideshow */}
-      <HeroSlideshow />
+      {/* Hero */}
+      <div className="relative w-full h-[60vh] md:h-[75vh] overflow-hidden">
+        <img
+          src="/hero.jpg"
+          alt="Kennel Team Englund - Tysk mester"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0c2340]/80 via-[#0c2340]/20 to-transparent" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tight drop-shadow-lg">
+            Kennel Team Englund
+          </h1>
+          <p className="mt-4 text-lg sm:text-xl text-blue-100/90 font-medium drop-shadow">
+            Schæferhundeopdræt siden 1984
+          </p>
+        </div>
+      </div>
 
       {/* Intro */}
       <section className="relative bg-gradient-to-br from-[#0c2340] via-[#1e3a5f] to-[#0c2340] text-blue-50 overflow-hidden">
