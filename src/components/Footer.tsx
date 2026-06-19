@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="bg-[#0c2340] text-blue-100/80 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="text-blue-50 font-bold text-lg mb-3">Kennel Team Englund</h3>
             <p className="text-sm leading-relaxed">
@@ -21,6 +21,9 @@ export default function Footer() {
               <li><Link href="/om-os" className="hover:text-blue-200 transition-colors">Om os</Link></li>
               <li><Link href="/kontakt" className="hover:text-blue-200 transition-colors">Kontakt</Link></li>
             </ul>
+          </div>
+          <div className="flex items-center justify-center">
+            <img src="/logo.jpg" alt="Team Englund Working Dogs" className="w-32 h-auto rounded-lg shadow-lg" />
           </div>
           <div>
             <h3 className="text-blue-50 font-bold text-lg mb-3">Kontakt</h3>
