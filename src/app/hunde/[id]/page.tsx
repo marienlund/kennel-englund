@@ -15,8 +15,9 @@ function calculateAge(birthdate: string): number {
 }
 
 export async function generateStaticParams() {
-  const dogs = await getDogs()
-  return dogs.map((dog) => ({ id: dog.id }))
+  // Use mock data at build time to avoid cookies() error
+  const { mockDogs } = await import('@/lib/mock-data')
+  return mockDogs.map((dog) => ({ id: dog.id }))
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
