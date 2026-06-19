@@ -65,6 +65,10 @@ create table public.dogs (
   mental_description text,
   training_results text,
   achievements text,
+  extra_info text,
+  working_dog_url text,
+  video_url text,
+  photo_url text,
   is_featured boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
