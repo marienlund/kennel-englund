@@ -81,16 +81,30 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
               )}
             </div>
 
-            {/* Thumbnail gallery placeholder */}
+            {/* Thumbnail gallery */}
             <div className="grid grid-cols-4 gap-2">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="aspect-square bg-slate-100 rounded-lg border border-slate-200 flex items-center justify-center"
-                >
-                  <span className="text-slate-300 text-xs">📷</span>
-                </div>
-              ))}
+              {dog.dog_photos && dog.dog_photos.length > 0
+                ? dog.dog_photos.slice(0, 4).map((photo, i) => (
+                    <div
+                      key={photo.id}
+                      className="aspect-square bg-slate-100 rounded-lg border border-slate-200 overflow-hidden"
+                    >
+                      <img
+                        src={photo.storage_path}
+                        alt={photo.caption || `${dog.name} foto ${i + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))
+                : [1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="aspect-square bg-slate-100 rounded-lg border border-slate-200 flex items-center justify-center"
+                    >
+                      <span className="text-slate-300 text-xs">📷</span>
+                    </div>
+                  ))
+              }
             </div>
           </div>
 

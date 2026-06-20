@@ -5,8 +5,9 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, Save, Upload, X } from 'lucide-react'
+import { ArrowLeft, Save, Upload, X, Plus, Trash2 } from 'lucide-react'
 import { mockDogs } from '@/lib/mock-data'
+import type { DogPhoto } from '@/lib/types'
 
 export default function EditHundPage() {
   const router = useRouter()
@@ -20,6 +21,12 @@ export default function EditHundPage() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [uploadStatus, setUploadStatus] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Extra photos state
+  const [extraPhotos, setExtraPhotos] = useState<DogPhoto[]>([])
+  const [extraUploading, setExtraUploading] = useState(false)
+  const [extraUploadStatus, setExtraUploadStatus] = useState<string | null>(null)
+  const extraFileInputRef = useRef<HTMLInputElement>(null)
 
   const [form, setForm] = useState({
     name: '',
@@ -85,8 +92,86 @@ export default function EditHundPage() {
     }
   }
 
+  const loadExtraPhotos = async () => {
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('dog_photos')
+        .select('*')
+        .eq('dog_id', id)
+        .order('sort_order', { ascending: true })
+      if (error) throw error
+      setExtraPhotos(data || [])
+    } catch {
+      // Ignore - extra photos just won't show
+    }
+  }
+
+  const handleExtraPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setExtraUploading(true)
+    setExtraUploadStatus('Uploader...')
+    try {
+      const supabase = createClient()
+      const ext = file.name.split('.').pop() || 'jpg'
+      const path = `dogs/${id}/extra_${Date.now()}.${ext}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('dog-photos')
+        .upload(path, file, { upsert: true })
+      if (uploadError) throw uploadError
+
+      const nextSort = extraPhotos.length > 0
+        ? Math.max(...extraPhotos.map(p => p.sort_order)) + 1
+        : 0
+
+      const { error: insertError } = await supabase
+        .from('dog_photos')
+        .insert({
+          dog_id: id,
+          storage_path: path,
+          sort_order: nextSort,
+        })
+      if (insertError) throw insertError
+
+      setExtraUploadStatus('Foto tilføjet!')
+      await loadExtraPhotos()
+    } catch (err) {
+      setExtraUploadStatus(`Fejl: ${err instanceof Error ? err.message : 'Ukendt fejl'}`)
+    } finally {
+      setExtraUploading(false)
+      if (extraFileInputRef.current) extraFileInputRef.current.value = ''
+      setTimeout(() => setExtraUploadStatus(null), 3000)
+    }
+  }
+
+  const handleDeleteExtraPhoto = async (photo: DogPhoto) => {
+    if (!confirm('Slet dette foto?')) return
+    try {
+      const supabase = createClient()
+      // Delete from storage
+      await supabase.storage.from('dog-photos').remove([photo.storage_path])
+      // Delete from database
+      await supabase.from('dog_photos').delete().eq('id', photo.id)
+      await loadExtraPhotos()
+    } catch {
+      setExtraUploadStatus('Fejl ved sletning')
+      setTimeout(() => setExtraUploadStatus(null), 3000)
+    }
+  }
+
+  const getExtraPhotoUrl = (photo: DogPhoto): string => {
+    const supabase = createClient()
+    const { data: { publicUrl } } = supabase.storage
+      .from('dog-photos')
+      .getPublicUrl(photo.storage_path)
+    return publicUrl
+  }
+
   useEffect(() => {
     loadDog()
+    loadExtraPhotos()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
@@ -197,9 +282,9 @@ export default function EditHundPage() {
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm mb-4">{error}</div>
       )}
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Photo section */}
+        {/* Main photo section */}
         <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
-          <h2 className="font-bold text-slate-900 mb-4">Foto</h2>
+          <h2 className="font-bold text-slate-900 mb-4">Hovedfoto</h2>
           {displayPhotoUrl && (
             <div className="relative mb-4 inline-block">
               <Image
@@ -240,6 +325,62 @@ export default function EditHundPage() {
           {uploadStatus && (
             <p className={`text-sm mt-2 ${uploadStatus.startsWith('Fejl') ? 'text-red-600' : 'text-green-600'}`}>
               {uploadStatus}
+            </p>
+          )}
+        </div>
+
+        {/* Extra photos section */}
+        <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
+          <h2 className="font-bold text-slate-900 mb-4">Ekstra fotos</h2>
+          
+          {/* Existing extra photos */}
+          {extraPhotos.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+              {extraPhotos.map((photo) => (
+                <div key={photo.id} className="relative group">
+                  <Image
+                    src={getExtraPhotoUrl(photo)}
+                    alt={photo.caption || 'Ekstra foto'}
+                    width={200}
+                    height={200}
+                    className="rounded-lg object-cover w-full aspect-square"
+                    unoptimized
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteExtraPhoto(photo)}
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                    title="Slet foto"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {extraPhotos.length === 0 && (
+            <p className="text-sm text-slate-400 mb-4">Ingen ekstra fotos endnu.</p>
+          )}
+
+          {/* Upload button */}
+          <label className={`flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-4 cursor-pointer hover:border-blue-400 transition-colors ${extraUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+            <Plus size={20} className="text-slate-400 mb-1" />
+            <span className="text-sm text-slate-500">
+              {extraUploading ? 'Uploader...' : 'Tilføj ekstra foto'}
+            </span>
+            <input
+              ref={extraFileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleExtraPhotoUpload}
+              disabled={extraUploading}
+            />
+          </label>
+          {extraUploadStatus && (
+            <p className={`text-sm mt-2 ${extraUploadStatus.startsWith('Fejl') ? 'text-red-600' : 'text-green-600'}`}>
+              {extraUploadStatus}
             </p>
           )}
         </div>
