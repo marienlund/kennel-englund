@@ -3,7 +3,29 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Trophy, GraduationCap } from 'lucide-react'
 import ExtraInfoBox from '@/components/ExtraInfoBox'
+import { createClient } from '@supabase/supabase-js'
 import type { Metadata } from 'next'
+
+async function getExtraPhotos(dogId: string) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url || !key) return []
+  try {
+    const supabase = createClient(url, key)
+    const { data } = await supabase
+      .from('dog_photos')
+      .select('id, storage_path, caption, sort_order')
+      .eq('dog_id', dogId)
+      .order('sort_order')
+    if (!data || data.length === 0) return []
+    return data.map((p) => ({
+      ...p,
+      url: supabase.storage.from('dog-photos').getPublicUrl(p.storage_path).data.publicUrl,
+    }))
+  } catch {
+    return []
+  }
+}
 
 function calculateAge(birthdate: string): number {
   const birth = new Date(birthdate)
@@ -32,6 +54,8 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
   const { id } = await params
   const dog = await getDog(id)
   if (!dog) notFound()
+
+  const extraPhotos = await getExtraPhotos(id)
 
   const age = dog.birthdate ? calculateAge(dog.birthdate) : null
 
@@ -83,14 +107,14 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
 
             {/* Thumbnail gallery */}
             <div className="grid grid-cols-4 gap-2">
-              {dog.dog_photos && dog.dog_photos.length > 0
-                ? dog.dog_photos.slice(0, 4).map((photo, i) => (
+              {extraPhotos.length > 0
+                ? extraPhotos.slice(0, 4).map((photo, i) => (
                     <div
                       key={photo.id}
                       className="aspect-square bg-slate-100 rounded-lg border border-slate-200 overflow-hidden"
                     >
                       <img
-                        src={photo.storage_path}
+                        src={photo.url}
                         alt={photo.caption || `${dog.name} foto ${i + 1}`}
                         className="w-full h-full object-cover"
                       />
