@@ -164,6 +164,9 @@ export default function EditHundPage() {
 
       if (photoUrl) {
         updateData.photo_url = photoUrl
+      } else if (!currentPhotoUrl && !photoFile) {
+        // Photo was cleared
+        updateData.photo_url = null
       }
 
       const { error } = await supabase
@@ -207,15 +210,18 @@ export default function EditHundPage() {
                 className="rounded-lg object-cover w-[300px] h-[300px]"
                 unoptimized
               />
-              {photoPreview && (
-                <button
-                  type="button"
-                  onClick={clearPhoto}
-                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                >
-                  <X size={16} />
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => {
+                  clearPhoto()
+                  setCurrentPhotoUrl(null)
+
+                }}
+                className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 transition-colors"
+                title="Slet foto"
+              >
+                <X size={16} />
+              </button>
             </div>
           )}
           <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-6 cursor-pointer hover:border-blue-400 transition-colors">
