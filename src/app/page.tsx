@@ -3,27 +3,62 @@ import DogCard from '@/components/DogCard'
 import NewsCard from '@/components/NewsCard'
 import { getFeaturedDogs, getLatestNews } from '@/lib/data'
 import { ArrowRight, Heart, Shield, Award } from 'lucide-react'
+import { createServerSupabase } from '@/lib/supabase/server'
+
+export const dynamic = 'force-dynamic'
+
+// Default values (fallback if Supabase not available)
+const DEFAULTS = {
+  hero_image_url: '',
+  hero_title: 'Kennel Team Englund',
+  hero_subtitle: 'Schæferhundeopdræt siden 1984',
+  intro_text_1: 'Opdræt af schæferhunde med fokus på mentalitet, sundhed og brugbarhed — siden 1984.',
+  intro_text_2: 'Vi avler sunde, mentalt stærke og brugbare schæferhunde. Alle vores hunde er røntgenfotograferet, mentalt beskrevne og uddannede. Vi tror på, at en god schæferhund starter med et godt gemyt.',
+}
+
+async function getSiteSettings() {
+  try {
+    const supabase = await createServerSupabase()
+    const { data, error } = await supabase.from('site_settings').select('id, value')
+    if (error) throw error
+
+    const settings = { ...DEFAULTS }
+    for (const row of data || []) {
+      if (row.id in settings) {
+        settings[row.id as keyof typeof settings] = row.value
+      }
+    }
+    return settings
+  } catch {
+    return DEFAULTS
+  }
+}
 
 export default async function HomePage() {
-  const featuredDogs = await getFeaturedDogs()
-  const latestNews = await getLatestNews(3)
+  const [featuredDogs, latestNews, settings] = await Promise.all([
+    getFeaturedDogs(),
+    getLatestNews(3),
+    getSiteSettings(),
+  ])
+
+  const heroImage = settings.hero_image_url || '/hero.jpg'
 
   return (
     <>
       {/* Hero */}
       <div className="relative w-full h-[60vh] md:h-[75vh] overflow-hidden">
         <img
-          src="/hero.jpg"
-          alt="Kennel Team Englund - Tysk mester"
+          src={heroImage}
+          alt={`${settings.hero_title} - Tysk mester`}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0c2340]/80 via-[#0c2340]/20 to-transparent" />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tight drop-shadow-lg">
-            Kennel Team Englund
+            {settings.hero_title}
           </h1>
           <p className="mt-4 text-lg sm:text-xl text-blue-100/90 font-medium drop-shadow">
-            Schæferhundeopdræt siden 1984
+            {settings.hero_subtitle}
           </p>
         </div>
       </div>
@@ -33,11 +68,10 @@ export default async function HomePage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           <div className="max-w-3xl mx-auto text-center">
             <p className="text-lg sm:text-xl text-blue-100/80 leading-relaxed mb-4">
-              Opdræt af schæferhunde med fokus på mentalitet, sundhed og brugbarhed — siden 1984.
+              {settings.intro_text_1}
             </p>
             <p className="text-base text-blue-100/60 leading-relaxed mb-8">
-              Vi avler sunde, mentalt stærke og brugbare schæferhunde. Alle vores hunde er røntgenfotograferet, 
-              mentalt beskrevne og uddannede. Vi tror på, at en god schæferhund starter med et godt gemyt.
+              {settings.intro_text_2}
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <Link

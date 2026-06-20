@@ -3,9 +3,10 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Dog, Baby, Newspaper, LogOut, Home } from 'lucide-react'
+import { Dog, Baby, Newspaper, LogOut, Home, LayoutDashboard } from 'lucide-react'
 
 const adminLinks = [
+  { href: '/admin/forside', label: 'Forside', icon: LayoutDashboard },
   { href: '/admin/hunde', label: 'Hunde', icon: Dog },
   { href: '/admin/hvalpe', label: 'Hvalpe', icon: Baby },
   { href: '/admin/nyheder', label: 'Nyheder', icon: Newspaper },
