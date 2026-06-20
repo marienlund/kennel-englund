@@ -1,15 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Save, Upload } from 'lucide-react'
+import Image from 'next/image'
+import { ArrowLeft, Save, Upload, X } from 'lucide-react'
 
 export default function NyHundPage() {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [form, setForm] = useState({
     name: '',
@@ -26,10 +31,25 @@ export default function NyHundPage() {
     is_featured: false,
   })
 
-  const [photos, setPhotos] = useState<File[]>([])
-
   const update = (field: string, value: string | boolean) => {
     setForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setPhotoFile(file)
+    const url = URL.createObjectURL(file)
+    setPhotoPreview(url)
+    setUploadStatus(null)
+  }
+
+  const clearPhoto = () => {
+    setPhotoFile(null)
+    if (photoPreview) URL.revokeObjectURL(photoPreview)
+    setPhotoPreview(null)
+    setUploadStatus(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,22 +79,31 @@ export default function NyHundPage() {
 
       if (insertError) throw insertError
 
-      // Upload photos
-      for (let i = 0; i < photos.length; i++) {
-        const file = photos[i]
-        const ext = file.name.split('.').pop()
-        const path = `dogs/${dog.id}/${i}-${Date.now()}.${ext}`
+      // Upload photo if selected
+      if (photoFile && dog) {
+        const ext = photoFile.name.split('.').pop() || 'jpg'
+        const path = `dogs/${dog.id}/${Date.now()}.${ext}`
 
+        setUploadStatus('Uploader foto...')
         const { error: uploadError } = await supabase.storage
           .from('dog-photos')
-          .upload(path, file)
+          .upload(path, photoFile, { upsert: true })
 
-        if (!uploadError) {
-          await supabase.from('dog_photos').insert({
-            dog_id: dog.id,
-            storage_path: path,
-            sort_order: i,
-          })
+        if (uploadError) {
+          setUploadStatus(`Fejl ved upload: ${uploadError.message}`)
+          // Dog is created but photo failed - still redirect
+        } else {
+          const { data: { publicUrl } } = supabase.storage
+            .from('dog-photos')
+            .getPublicUrl(path)
+
+          // Update dog with photo URL
+          await supabase
+            .from('dogs')
+            .update({ photo_url: publicUrl })
+            .eq('id', dog.id)
+
+          setUploadStatus('Foto uploadet!')
         }
       }
 
@@ -104,6 +133,48 @@ export default function NyHundPage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Photo */}
+        <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
+          <h2 className="font-bold text-slate-900 mb-4">Foto</h2>
+          {photoPreview && (
+            <div className="relative mb-4 inline-block">
+              <Image
+                src={photoPreview}
+                alt="Forhåndsvisning"
+                width={300}
+                height={300}
+                className="rounded-lg object-cover w-[300px] h-[300px]"
+                unoptimized
+              />
+              <button
+                type="button"
+                onClick={clearPhoto}
+                className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
+          <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-6 cursor-pointer hover:border-blue-400 transition-colors">
+            <Upload size={24} className="text-slate-400 mb-2" />
+            <span className="text-sm text-slate-500">
+              {photoFile ? photoFile.name : 'Klik for at vælge foto'}
+            </span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoSelect}
+            />
+          </label>
+          {uploadStatus && (
+            <p className={`text-sm mt-2 ${uploadStatus.startsWith('Fejl') ? 'text-red-600' : 'text-green-600'}`}>
+              {uploadStatus}
+            </p>
+          )}
+        </div>
+
         {/* Basic info */}
         <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
           <h2 className="font-bold text-slate-900 mb-4">Grundlæggende oplysninger</h2>
@@ -243,24 +314,6 @@ export default function NyHundPage() {
               />
             </div>
           </div>
-        </div>
-
-        {/* Photos */}
-        <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
-          <h2 className="font-bold text-slate-900 mb-4">Fotos</h2>
-          <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-8 cursor-pointer hover:border-blue-400 transition-colors">
-            <Upload size={24} className="text-slate-400 mb-2" />
-            <span className="text-sm text-slate-500">
-              {photos.length > 0 ? `${photos.length} fil(er) valgt` : 'Klik for at vælge fotos'}
-            </span>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => setPhotos(Array.from(e.target.files || []))}
-            />
-          </label>
         </div>
 
         <div className="flex items-center gap-3">

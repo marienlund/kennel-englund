@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Save } from 'lucide-react'
+import Image from 'next/image'
+import { ArrowLeft, Save, Upload, X } from 'lucide-react'
 import { mockDogs } from '@/lib/mock-data'
 
 export default function EditHundPage() {
@@ -14,6 +15,11 @@ export default function EditHundPage() {
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | null>(null)
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [form, setForm] = useState({
     name: '',
@@ -49,6 +55,9 @@ export default function EditHundPage() {
         achievements: data.achievements || '',
         is_featured: data.is_featured || false,
       })
+      if (data.photo_url) {
+        setCurrentPhotoUrl(data.photo_url)
+      }
     } catch {
       // Fall back to mock
       const mock = mockDogs.find((d) => d.id === id)
@@ -67,6 +76,9 @@ export default function EditHundPage() {
           achievements: mock.achievements || '',
           is_featured: mock.is_featured,
         })
+        if (mock.photo_url) {
+          setCurrentPhotoUrl(mock.photo_url)
+        }
       }
     } finally {
       setLoading(false)
@@ -82,6 +94,46 @@ export default function EditHundPage() {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setPhotoFile(file)
+    const url = URL.createObjectURL(file)
+    setPhotoPreview(url)
+    setUploadStatus(null)
+  }
+
+  const clearPhoto = () => {
+    setPhotoFile(null)
+    if (photoPreview) URL.revokeObjectURL(photoPreview)
+    setPhotoPreview(null)
+    setUploadStatus(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  const uploadPhoto = async (supabase: ReturnType<typeof createClient>, dogId: string): Promise<string | null> => {
+    if (!photoFile) return null
+    const ext = photoFile.name.split('.').pop() || 'jpg'
+    const path = `dogs/${dogId}/${Date.now()}.${ext}`
+
+    setUploadStatus('Uploader foto...')
+    const { error: uploadError } = await supabase.storage
+      .from('dog-photos')
+      .upload(path, photoFile, { upsert: true })
+
+    if (uploadError) {
+      setUploadStatus(`Fejl: ${uploadError.message}`)
+      throw uploadError
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('dog-photos')
+      .getPublicUrl(path)
+
+    setUploadStatus('Foto uploadet!')
+    return publicUrl
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -89,21 +141,34 @@ export default function EditHundPage() {
 
     try {
       const supabase = createClient()
+
+      // Upload photo first if selected
+      let photoUrl: string | null | undefined
+      if (photoFile) {
+        photoUrl = await uploadPhoto(supabase, id)
+      }
+
+      const updateData: Record<string, unknown> = {
+        ...form,
+        birthdate: form.birthdate || null,
+        sire_name: form.sire_name || null,
+        dam_name: form.dam_name || null,
+        hd_score: form.hd_score || null,
+        ad_score: form.ad_score || null,
+        ocd_status: form.ocd_status || null,
+        mental_description: form.mental_description || null,
+        training_results: form.training_results || null,
+        achievements: form.achievements || null,
+        updated_at: new Date().toISOString(),
+      }
+
+      if (photoUrl) {
+        updateData.photo_url = photoUrl
+      }
+
       const { error } = await supabase
         .from('dogs')
-        .update({
-          ...form,
-          birthdate: form.birthdate || null,
-          sire_name: form.sire_name || null,
-          dam_name: form.dam_name || null,
-          hd_score: form.hd_score || null,
-          ad_score: form.ad_score || null,
-          ocd_status: form.ocd_status || null,
-          mental_description: form.mental_description || null,
-          training_results: form.training_results || null,
-          achievements: form.achievements || null,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq('id', id)
 
       if (error) throw error
@@ -117,6 +182,8 @@ export default function EditHundPage() {
 
   if (loading) return <div className="text-center py-12 text-slate-500">Indlæser...</div>
 
+  const displayPhotoUrl = photoPreview || currentPhotoUrl
+
   return (
     <div className="max-w-3xl">
       <Link href="/admin/hunde" className="inline-flex items-center gap-1 text-blue-700 hover:text-blue-800 text-sm font-medium mb-4">
@@ -127,6 +194,50 @@ export default function EditHundPage() {
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm mb-4">{error}</div>
       )}
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Photo section */}
+        <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
+          <h2 className="font-bold text-slate-900 mb-4">Foto</h2>
+          {displayPhotoUrl && (
+            <div className="relative mb-4 inline-block">
+              <Image
+                src={displayPhotoUrl}
+                alt={form.name || 'Hundefoto'}
+                width={300}
+                height={300}
+                className="rounded-lg object-cover w-[300px] h-[300px]"
+                unoptimized
+              />
+              {photoPreview && (
+                <button
+                  type="button"
+                  onClick={clearPhoto}
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+          )}
+          <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-6 cursor-pointer hover:border-blue-400 transition-colors">
+            <Upload size={24} className="text-slate-400 mb-2" />
+            <span className="text-sm text-slate-500">
+              {photoFile ? photoFile.name : (currentPhotoUrl ? 'Klik for at vælge nyt foto' : 'Klik for at vælge foto')}
+            </span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoSelect}
+            />
+          </label>
+          {uploadStatus && (
+            <p className={`text-sm mt-2 ${uploadStatus.startsWith('Fejl') ? 'text-red-600' : 'text-green-600'}`}>
+              {uploadStatus}
+            </p>
+          )}
+        </div>
+
         <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
           <h2 className="font-bold text-slate-900 mb-4">Grundlæggende oplysninger</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
