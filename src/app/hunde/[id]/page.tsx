@@ -201,7 +201,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
             {/* Mental description */}
             {dog.mental_description && (
               <div className="border-t border-slate-200 pt-4">
-                <h2 className="text-sm font-bold text-[#0c2340] mb-2">Mentalbeskrivelse</h2>
+                <h2 className="text-sm font-bold text-[#0c2340] mb-2">Beskrivelse</h2>
                 <p className="text-sm text-slate-600 leading-relaxed">{dog.mental_description}</p>
               </div>
             )}
@@ -209,7 +209,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
             {/* Achievements */}
             {dog.achievements && (
               <div className="border-t border-slate-200 pt-4">
-                <h2 className="text-sm font-bold text-[#0c2340] mb-2">Præstationer</h2>
+                <h2 className="text-sm font-bold text-[#0c2340] mb-2">Kuld</h2>
                 <p className="text-sm text-slate-600 leading-relaxed">{dog.achievements}</p>
               </div>
             )}

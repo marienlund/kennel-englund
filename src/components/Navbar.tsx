@@ -8,7 +8,6 @@ const links = [
   { href: '/', label: 'Forside' },
   { href: '/avlstaever', label: 'Avlstæver' },
   { href: '/avlshanner', label: 'Avlshanner' },
-  { href: '/hunde', label: 'Egne Hunde' },
   { href: '/hvalpe', label: 'Hvalpe' },
   { href: '/resultater', label: 'Resultater' },
   { href: '/nyheder', label: 'Nyheder' },
