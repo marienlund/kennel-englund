@@ -178,7 +178,7 @@ export default function EditHundPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
-  const update = (field: string, value: string | boolean) => {
+  const update = (field: string, value: string | boolean | number) => {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -247,6 +247,7 @@ export default function EditHundPage() {
         mental_description: form.mental_description || null,
         training_results: form.training_results || null,
         achievements: form.achievements || null,
+        sort_order: parseInt(String(form.sort_order)) || 0,
         updated_at: new Date().toISOString(),
       }
 
