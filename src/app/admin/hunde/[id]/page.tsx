@@ -41,6 +41,7 @@ export default function EditHundPage() {
     training_results: '',
     achievements: '',
     is_featured: false,
+    sort_order: 0,
   })
 
   const loadDog = async () => {
@@ -61,6 +62,7 @@ export default function EditHundPage() {
         training_results: data.training_results || '',
         achievements: data.achievements || '',
         is_featured: data.is_featured || false,
+        sort_order: data.sort_order || 0,
       })
       if (data.photo_url) {
         setCurrentPhotoUrl(data.photo_url)
@@ -410,6 +412,10 @@ export default function EditHundPage() {
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Mor (dam)</label>
               <input type="text" value={form.dam_name} onChange={(e) => update('dam_name', e.target.value)} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Rækkefølge (lavt tal = øverst)</label>
+              <input type="number" value={form.sort_order} onChange={(e) => update('sort_order', e.target.value)} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none" />
             </div>
             <div className="sm:col-span-2">
               <label className="flex items-center gap-2 cursor-pointer">

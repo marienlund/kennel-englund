@@ -1,15 +1,38 @@
 import DogCard from '@/components/DogCard'
 import { getDogs } from '@/lib/data'
+import { createClient } from '@supabase/supabase-js'
 import type { Metadata } from 'next'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Avlstæver | Kennel Team Englund',
   description: 'Se alle vores avlstæver med sundhedsdata, mentalbeskrivelser og resultater.',
 }
 
-export default async function AvlstaeverPage() {
+async function getFemales() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url || !key) {
+    const dogs = await getDogs()
+    return dogs.filter((d) => d.gender === 'female')
+  }
+  try {
+    const supabase = createClient(url, key)
+    const { data } = await supabase
+      .from('dogs')
+      .select('*')
+      .eq('gender', 'female')
+      .order('sort_order', { ascending: true })
+      .order('name', { ascending: true })
+    if (data && data.length > 0) return data
+  } catch {}
   const dogs = await getDogs()
-  const females = dogs.filter((d) => d.gender === 'female')
+  return dogs.filter((d) => d.gender === 'female')
+}
+
+export default async function AvlstaeverPage() {
+  const females = await getFemales()
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
