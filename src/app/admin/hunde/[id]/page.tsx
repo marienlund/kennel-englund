@@ -84,6 +84,7 @@ export default function EditHundPage() {
           training_results: mock.training_results || '',
           achievements: mock.achievements || '',
           is_featured: mock.is_featured,
+          sort_order: 0,
         })
         if (mock.photo_url) {
           setCurrentPhotoUrl(mock.photo_url)
