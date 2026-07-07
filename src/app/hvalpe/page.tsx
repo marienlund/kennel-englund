@@ -25,7 +25,7 @@ export default async function HvalpePage() {
         <p className="text-slate-500 text-center py-12">Ingen kuld at vise lige nu.</p>
       )}
 
-      <div className="space-y-12">
+      <div className="space-y-16">
         {litters.map((litter) => {
           const birthDate = litter.birth_date
             ? new Date(litter.birth_date).toLocaleDateString('da-DK', {
@@ -40,10 +40,26 @@ export default async function HvalpePage() {
               {/* Boks 1: Kuld info */}
               <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6 sm:p-8">
                 <h2 className="text-xl font-bold text-[#0c2340] mb-4">Kuld</h2>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-3 text-sm">
                   <div className="flex gap-4">
-                    <span className="text-slate-500 w-24 flex-shrink-0 font-medium">Kuld:</span>
-                    <span className="text-slate-900 font-semibold">{litter.sire_name} × {litter.dam_name}</span>
+                    <span className="text-slate-500 w-24 flex-shrink-0 font-medium">Hannen:</span>
+                    <span className="text-slate-900 font-semibold">{litter.sire_name}</span>
+                    {litter.sire_working_dog_url && (
+                      <a href={litter.sire_working_dog_url} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-[#2563eb] hover:text-[#0c2340]">
+                        Working Dog <ExternalLink size={10} />
+                      </a>
+                    )}
+                  </div>
+                  <div className="flex gap-4">
+                    <span className="text-slate-500 w-24 flex-shrink-0 font-medium">Tæven:</span>
+                    <span className="text-slate-900 font-semibold">{litter.dam_name}</span>
+                    {litter.dam_working_dog_url && (
+                      <a href={litter.dam_working_dog_url} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-[#2563eb] hover:text-[#0c2340]">
+                        Working Dog <ExternalLink size={10} />
+                      </a>
+                    )}
                   </div>
                   {birthDate && (
                     <div className="flex gap-4">
@@ -80,15 +96,16 @@ export default async function HvalpePage() {
                             <img src={puppy.photo_url} alt={puppy.name} className="w-full h-full object-cover" />
                           </div>
                         ) : (
-                          <div className="aspect-square bg-slate-50 flex items-center justify-center">
-                            <span className="text-4xl opacity-30">🐕</span>
+                          <div className="aspect-square bg-slate-50 flex flex-col items-center justify-center border-b border-slate-200">
+                            <span className="text-4xl opacity-30 mb-2">📷</span>
+                            <span className="text-xs text-slate-400">Foto kommer</span>
                           </div>
                         )}
-                        <div className="p-3">
+                        <div className="p-3 space-y-1">
                           <p className="font-semibold text-slate-900 text-sm">{puppy.name}</p>
                           {puppy.working_dog_url && (
                             <a href={puppy.working_dog_url} target="_blank" rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-xs text-[#2563eb] hover:text-[#0c2340] mt-1">
+                              className="inline-flex items-center gap-1 text-xs text-[#2563eb] hover:text-[#0c2340]">
                               Working Dog <ExternalLink size={10} />
                             </a>
                           )}
@@ -114,15 +131,16 @@ export default async function HvalpePage() {
                             <img src={puppy.photo_url} alt={puppy.name} className="w-full h-full object-cover" />
                           </div>
                         ) : (
-                          <div className="aspect-square bg-slate-50 flex items-center justify-center">
-                            <span className="text-4xl opacity-30">🐕‍🦺</span>
+                          <div className="aspect-square bg-slate-50 flex flex-col items-center justify-center border-b border-slate-200">
+                            <span className="text-4xl opacity-30 mb-2">📷</span>
+                            <span className="text-xs text-slate-400">Foto kommer</span>
                           </div>
                         )}
-                        <div className="p-3">
+                        <div className="p-3 space-y-1">
                           <p className="font-semibold text-slate-900 text-sm">{puppy.name}</p>
                           {puppy.working_dog_url && (
                             <a href={puppy.working_dog_url} target="_blank" rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-xs text-[#2563eb] hover:text-[#0c2340] mt-1">
+                              className="inline-flex items-center gap-1 text-xs text-[#2563eb] hover:text-[#0c2340]">
                               Working Dog <ExternalLink size={10} />
                             </a>
                           )}

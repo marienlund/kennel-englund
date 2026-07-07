@@ -38,7 +38,9 @@ export interface Puppy {
 export interface Litter {
   id: string
   sire_name: string
+  sire_working_dog_url?: string | null
   dam_name: string
+  dam_working_dog_url?: string | null
   birth_date: string | null
   males_count: number
   females_count: number
