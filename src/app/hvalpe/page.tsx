@@ -93,23 +93,27 @@ export default async function HvalpePage() {
                           Han
                         </h2>
                       </div>
-                      {litter.males[0].photo_url ? (
-                        <div className="aspect-[4/3] bg-slate-100">
-                          <img src={litter.males[0].photo_url} alt={litter.males[0].name} className="w-full h-full object-cover" />
-                        </div>
-                      ) : (
-                        <div className="aspect-[4/3] bg-slate-50 flex flex-col items-center justify-center">
-                          <span className="text-5xl opacity-20 mb-2">📷</span>
-                          <span className="text-xs text-slate-400">Foto kommer</span>
-                        </div>
-                      )}
-                      <div className="p-4 space-y-1">
+                      <div className="p-4 flex justify-center">
+                        {litter.males[0].photo_url ? (
+                          <div className="w-1/2 aspect-square bg-slate-100 rounded-lg overflow-hidden">
+                            <img src={litter.males[0].photo_url} alt={litter.males[0].name} className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <div className="w-1/2 aspect-square bg-slate-50 rounded-lg border border-dashed border-slate-300 flex flex-col items-center justify-center">
+                            <span className="text-3xl opacity-20 mb-1">📷</span>
+                            <span className="text-xs text-slate-400">Foto</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="px-4 pb-4 text-center space-y-1">
                         <p className="font-semibold text-slate-900">{litter.males[0].name}</p>
-                        {litter.males[0].working_dog_url && (
+                        {litter.males[0].working_dog_url ? (
                           <a href={litter.males[0].working_dog_url} target="_blank" rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-sm text-[#2563eb] hover:text-[#0c2340]">
                             Working Dog <ExternalLink size={12} />
                           </a>
+                        ) : (
+                          <p className="text-xs text-slate-400 italic">Working Dog link mangler</p>
                         )}
                       </div>
                     </div>
@@ -124,23 +128,27 @@ export default async function HvalpePage() {
                           Tæve
                         </h2>
                       </div>
-                      {litter.females[0].photo_url ? (
-                        <div className="aspect-[4/3] bg-slate-100">
-                          <img src={litter.females[0].photo_url} alt={litter.females[0].name} className="w-full h-full object-cover" />
-                        </div>
-                      ) : (
-                        <div className="aspect-[4/3] bg-slate-50 flex flex-col items-center justify-center">
-                          <span className="text-5xl opacity-20 mb-2">📷</span>
-                          <span className="text-xs text-slate-400">Foto kommer</span>
-                        </div>
-                      )}
-                      <div className="p-4 space-y-1">
+                      <div className="p-4 flex justify-center">
+                        {litter.females[0].photo_url ? (
+                          <div className="w-1/2 aspect-square bg-slate-100 rounded-lg overflow-hidden">
+                            <img src={litter.females[0].photo_url} alt={litter.females[0].name} className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <div className="w-1/2 aspect-square bg-slate-50 rounded-lg border border-dashed border-slate-300 flex flex-col items-center justify-center">
+                            <span className="text-3xl opacity-20 mb-1">📷</span>
+                            <span className="text-xs text-slate-400">Foto</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="px-4 pb-4 text-center space-y-1">
                         <p className="font-semibold text-slate-900">{litter.females[0].name}</p>
-                        {litter.females[0].working_dog_url && (
+                        {litter.females[0].working_dog_url ? (
                           <a href={litter.females[0].working_dog_url} target="_blank" rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-sm text-[#2563eb] hover:text-[#0c2340]">
                             Working Dog <ExternalLink size={12} />
                           </a>
+                        ) : (
+                          <p className="text-xs text-slate-400 italic">Working Dog link mangler</p>
                         )}
                       </div>
                     </div>
