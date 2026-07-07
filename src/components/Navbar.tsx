@@ -9,6 +9,7 @@ const links = [
   { href: '/avlstaever', label: 'Avlstæver' },
   { href: '/avlshanner', label: 'Avlshanner' },
   { href: '/hvalpe', label: 'Hvalpe' },
+
   { href: '/resultater', label: 'Resultater' },
   { href: '/nyheder', label: 'Nyheder' },
   { href: '/om-os', label: 'Om os' },

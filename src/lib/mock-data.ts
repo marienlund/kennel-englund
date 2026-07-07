@@ -449,7 +449,18 @@ export const mockLitters: Litter[] = [
     males_count: 4,
     females_count: 3,
     available: true,
-    description: 'Fantastisk kuld med 7 sunde og livlige hvalpe. Begge forældre er HD-A og mentalt beskrevne med fremragende resultater. Hvalpene er opdrættet i hjemmet med tidlig stimulering og socialisering. 2 hanner og 1 tæve er stadig ledige.',
+    description: 'Fantastisk kuld med 7 sunde og livlige hvalpe.',
+    males: [
+      { name: 'Han 1', photo_url: null, working_dog_url: null },
+      { name: 'Han 2', photo_url: null, working_dog_url: null },
+      { name: 'Han 3', photo_url: null, working_dog_url: null },
+      { name: 'Han 4', photo_url: null, working_dog_url: null },
+    ],
+    females: [
+      { name: 'Tæve 1', photo_url: null, working_dog_url: null },
+      { name: 'Tæve 2', photo_url: null, working_dog_url: null },
+      { name: 'Tæve 3', photo_url: null, working_dog_url: null },
+    ],
     created_at: '2025-04-20T00:00:00Z',
   },
   {

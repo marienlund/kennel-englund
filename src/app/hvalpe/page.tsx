@@ -1,119 +1,147 @@
 import { getLitters } from '@/lib/data'
-import { Baby, CheckCircle, Clock, Phone } from 'lucide-react'
+import { Baby, Phone, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Hvalpe | Kennel Team Englund',
-  description: 'Se aktuelle og kommende kuld af schæferhvalpe fra Kennel Team Englund.',
+  description: 'Se aktuelle kuld af schæferhvalpe fra Kennel Team Englund.',
 }
 
 export default async function HvalpePage() {
   const litters = await getLitters()
-  const current = litters.filter((l) => l.birth_date)
-  const planned = litters.filter((l) => !l.birth_date)
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-      <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">Hvalpe</h1>
+      <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2 flex items-center gap-3">
+        <Baby size={32} className="text-blue-700" />
+        Hvalpe
+      </h1>
       <p className="text-slate-600 mb-10 max-w-2xl">
-        Vi planlægger vores kuld omhyggeligt med fokus på sundhed, mentalitet og brugbarhed. 
-        Alle hvalpe leveres med stamtavle, sundhedsattest og er chippet.
+        Vi planlægger vores kuld omhyggeligt med fokus på sundhed, mentalitet og brugbarhed.
       </p>
 
-      {/* Current litters */}
-      {current.length > 0 && (
-        <section className="mb-12">
-          <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-            <Baby size={22} className="text-blue-700" />
-            Aktuelle kuld
-          </h2>
-          <div className="space-y-6">
-            {current.map((litter) => {
-              const birthDate = litter.birth_date
-                ? new Date(litter.birth_date).toLocaleDateString('da-DK', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })
-                : null
-              return (
-                <div
-                  key={litter.id}
-                  className="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden"
-                >
-                  <div className="aspect-[16/5] bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-                    <span className="text-6xl opacity-50">🐾</span>
+      {litters.length === 0 && (
+        <p className="text-slate-500 text-center py-12">Ingen kuld at vise lige nu.</p>
+      )}
+
+      <div className="space-y-12">
+        {litters.map((litter) => {
+          const birthDate = litter.birth_date
+            ? new Date(litter.birth_date).toLocaleDateString('da-DK', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })
+            : null
+
+          return (
+            <div key={litter.id} className="space-y-6">
+              {/* Boks 1: Kuld info */}
+              <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6 sm:p-8">
+                <h2 className="text-xl font-bold text-[#0c2340] mb-4">Kuld</h2>
+                <div className="space-y-2 text-sm">
+                  <div className="flex gap-4">
+                    <span className="text-slate-500 w-24 flex-shrink-0 font-medium">Kuld:</span>
+                    <span className="text-slate-900 font-semibold">{litter.sire_name} × {litter.dam_name}</span>
                   </div>
-                  <div className="p-6 sm:p-8">
-                    <div className="flex flex-wrap items-center gap-3 mb-3">
-                      {litter.available ? (
-                        <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">
-                          <CheckCircle size={14} /> Ledige hvalpe
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
-                          Alle reserveret
-                        </span>
-                      )}
+                  {birthDate && (
+                    <div className="flex gap-4">
+                      <span className="text-slate-500 w-24 flex-shrink-0 font-medium">Født:</span>
+                      <span className="text-slate-900">{birthDate}</span>
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-1">
-                      {litter.sire_name} × {litter.dam_name}
-                    </h3>
-                    {birthDate && (
-                      <p className="text-sm text-slate-500 mb-3">Født {birthDate}</p>
-                    )}
-                    <div className="flex flex-wrap gap-4 text-sm text-slate-600 mb-4">
-                      <span>♂ {litter.males_count} hanner</span>
-                      <span>♀ {litter.females_count} tæver</span>
-                      <span>Totalt: {litter.males_count + litter.females_count} hvalpe</span>
-                    </div>
-                    {litter.description && (
-                      <p className="text-slate-600 text-sm leading-relaxed">{litter.description}</p>
-                    )}
+                  )}
+                  <div className="flex gap-4">
+                    <span className="text-slate-500 w-24 flex-shrink-0 font-medium">Hanner:</span>
+                    <span className="text-slate-900">♂ {litter.males_count}</span>
+                  </div>
+                  <div className="flex gap-4">
+                    <span className="text-slate-500 w-24 flex-shrink-0 font-medium">Tæver:</span>
+                    <span className="text-slate-900">♀ {litter.females_count}</span>
                   </div>
                 </div>
-              )
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* Planned */}
-      {planned.length > 0 && (
-        <section className="mb-12">
-          <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-            <Clock size={22} className="text-blue-500" />
-            Planlagte kuld
-          </h2>
-          <div className="space-y-6">
-            {planned.map((litter) => (
-              <div
-                key={litter.id}
-                className="bg-white rounded-xl shadow-md border border-slate-200 p-6 sm:p-8"
-              >
-                <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 mb-3">
-                  <Clock size={14} /> Planlagt
-                </span>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">
-                  {litter.sire_name} × {litter.dam_name}
-                </h3>
                 {litter.description && (
-                  <p className="text-slate-600 text-sm leading-relaxed">{litter.description}</p>
+                  <p className="text-slate-600 text-sm leading-relaxed mt-4 border-t border-slate-100 pt-4">{litter.description}</p>
                 )}
               </div>
-            ))}
-          </div>
-        </section>
-      )}
 
-      {/* Waiting list */}
-      <section className="bg-blue-50 rounded-2xl border border-blue-200 p-6 sm:p-8">
-        <h2 className="text-xl font-bold text-[#0c2340] mb-3">Venteliste</h2>
+              {/* Boks 2: Hanner */}
+              {litter.males && litter.males.length > 0 && (
+                <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6 sm:p-8">
+                  <h2 className="text-lg font-bold text-[#0c2340] mb-4 flex items-center gap-2">
+                    <span className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm">♂</span>
+                    Hanner
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {litter.males.map((puppy, i) => (
+                      <div key={i} className="border border-slate-200 rounded-lg overflow-hidden">
+                        {puppy.photo_url ? (
+                          <div className="aspect-square bg-slate-100">
+                            <img src={puppy.photo_url} alt={puppy.name} className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <div className="aspect-square bg-slate-50 flex items-center justify-center">
+                            <span className="text-4xl opacity-30">🐕</span>
+                          </div>
+                        )}
+                        <div className="p-3">
+                          <p className="font-semibold text-slate-900 text-sm">{puppy.name}</p>
+                          {puppy.working_dog_url && (
+                            <a href={puppy.working_dog_url} target="_blank" rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-xs text-[#2563eb] hover:text-[#0c2340] mt-1">
+                              Working Dog <ExternalLink size={10} />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Boks 3: Tæver */}
+              {litter.females && litter.females.length > 0 && (
+                <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6 sm:p-8">
+                  <h2 className="text-lg font-bold text-[#0c2340] mb-4 flex items-center gap-2">
+                    <span className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center text-sm">♀</span>
+                    Tæver
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {litter.females.map((puppy, i) => (
+                      <div key={i} className="border border-slate-200 rounded-lg overflow-hidden">
+                        {puppy.photo_url ? (
+                          <div className="aspect-square bg-slate-100">
+                            <img src={puppy.photo_url} alt={puppy.name} className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <div className="aspect-square bg-slate-50 flex items-center justify-center">
+                            <span className="text-4xl opacity-30">🐕‍🦺</span>
+                          </div>
+                        )}
+                        <div className="p-3">
+                          <p className="font-semibold text-slate-900 text-sm">{puppy.name}</p>
+                          {puppy.working_dog_url && (
+                            <a href={puppy.working_dog_url} target="_blank" rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-xs text-[#2563eb] hover:text-[#0c2340] mt-1">
+                              Working Dog <ExternalLink size={10} />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Kontakt */}
+      <section className="bg-blue-50 rounded-2xl border border-blue-200 p-6 sm:p-8 mt-12">
+        <h2 className="text-xl font-bold text-[#0c2340] mb-3">Interesseret?</h2>
         <p className="text-[#1e3a5f] text-sm leading-relaxed mb-4">
-          Er du interesseret i en hvalp fra Kennel Team Englund? Vi har en venteliste, og du er 
-          velkommen til at kontakte os for at høre mere om vores planer og forventninger til nye 
-          hvalpekøbere. Vi lægger stor vægt på at matche den rigtige hvalp med den rigtige familie.
+          Kontakt os for at høre mere om aktuelle og kommende kuld.
         </p>
         <Link
           href="/kontakt"

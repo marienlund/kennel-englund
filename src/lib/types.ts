@@ -29,6 +29,12 @@ export interface DogPhoto {
   created_at: string
 }
 
+export interface Puppy {
+  name: string
+  photo_url?: string | null
+  working_dog_url?: string | null
+}
+
 export interface Litter {
   id: string
   sire_name: string
@@ -38,6 +44,8 @@ export interface Litter {
   females_count: number
   available: boolean
   description: string | null
+  males?: Puppy[]
+  females?: Puppy[]
   created_at: string
   litter_photos?: LitterPhoto[]
 }
