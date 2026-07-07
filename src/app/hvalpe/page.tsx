@@ -81,73 +81,70 @@ export default async function HvalpePage() {
                 )}
               </div>
 
-              {/* Boks 2: Hanner */}
-              {litter.males && litter.males.length > 0 && (
-                <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6 sm:p-8">
-                  <h2 className="text-lg font-bold text-[#0c2340] mb-4 flex items-center gap-2">
-                    <span className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm">♂</span>
-                    Hanner
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {litter.males.map((puppy, i) => (
-                      <div key={i} className="border border-slate-200 rounded-lg overflow-hidden">
-                        {puppy.photo_url ? (
-                          <div className="aspect-square bg-slate-100">
-                            <img src={puppy.photo_url} alt={puppy.name} className="w-full h-full object-cover" />
-                          </div>
-                        ) : (
-                          <div className="aspect-square bg-slate-50 flex flex-col items-center justify-center border-b border-slate-200">
-                            <span className="text-4xl opacity-30 mb-2">📷</span>
-                            <span className="text-xs text-slate-400">Foto kommer</span>
-                          </div>
-                        )}
-                        <div className="p-3 space-y-1">
-                          <p className="font-semibold text-slate-900 text-sm">{puppy.name}</p>
-                          {puppy.working_dog_url && (
-                            <a href={puppy.working_dog_url} target="_blank" rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-xs text-[#2563eb] hover:text-[#0c2340]">
-                              Working Dog <ExternalLink size={10} />
-                            </a>
-                          )}
-                        </div>
+              {/* Boks 2 + 3: Han og Tæve side om side */}
+              {((litter.males && litter.males.length > 0) || (litter.females && litter.females.length > 0)) && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {/* Han */}
+                  {litter.males && litter.males[0] && (
+                    <div className="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
+                      <div className="p-4 border-b border-slate-100">
+                        <h2 className="text-lg font-bold text-[#0c2340] flex items-center gap-2">
+                          <span className="w-7 h-7 bg-blue-100 rounded-full flex items-center justify-center text-sm">♂</span>
+                          Han
+                        </h2>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                      {litter.males[0].photo_url ? (
+                        <div className="aspect-[4/3] bg-slate-100">
+                          <img src={litter.males[0].photo_url} alt={litter.males[0].name} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="aspect-[4/3] bg-slate-50 flex flex-col items-center justify-center">
+                          <span className="text-5xl opacity-20 mb-2">📷</span>
+                          <span className="text-xs text-slate-400">Foto kommer</span>
+                        </div>
+                      )}
+                      <div className="p-4 space-y-1">
+                        <p className="font-semibold text-slate-900">{litter.males[0].name}</p>
+                        {litter.males[0].working_dog_url && (
+                          <a href={litter.males[0].working_dog_url} target="_blank" rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-sm text-[#2563eb] hover:text-[#0c2340]">
+                            Working Dog <ExternalLink size={12} />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
-              {/* Boks 3: Tæver */}
-              {litter.females && litter.females.length > 0 && (
-                <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6 sm:p-8">
-                  <h2 className="text-lg font-bold text-[#0c2340] mb-4 flex items-center gap-2">
-                    <span className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center text-sm">♀</span>
-                    Tæver
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {litter.females.map((puppy, i) => (
-                      <div key={i} className="border border-slate-200 rounded-lg overflow-hidden">
-                        {puppy.photo_url ? (
-                          <div className="aspect-square bg-slate-100">
-                            <img src={puppy.photo_url} alt={puppy.name} className="w-full h-full object-cover" />
-                          </div>
-                        ) : (
-                          <div className="aspect-square bg-slate-50 flex flex-col items-center justify-center border-b border-slate-200">
-                            <span className="text-4xl opacity-30 mb-2">📷</span>
-                            <span className="text-xs text-slate-400">Foto kommer</span>
-                          </div>
-                        )}
-                        <div className="p-3 space-y-1">
-                          <p className="font-semibold text-slate-900 text-sm">{puppy.name}</p>
-                          {puppy.working_dog_url && (
-                            <a href={puppy.working_dog_url} target="_blank" rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-xs text-[#2563eb] hover:text-[#0c2340]">
-                              Working Dog <ExternalLink size={10} />
-                            </a>
-                          )}
-                        </div>
+                  {/* Tæve */}
+                  {litter.females && litter.females[0] && (
+                    <div className="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
+                      <div className="p-4 border-b border-slate-100">
+                        <h2 className="text-lg font-bold text-[#0c2340] flex items-center gap-2">
+                          <span className="w-7 h-7 bg-pink-100 rounded-full flex items-center justify-center text-sm">♀</span>
+                          Tæve
+                        </h2>
                       </div>
-                    ))}
-                  </div>
+                      {litter.females[0].photo_url ? (
+                        <div className="aspect-[4/3] bg-slate-100">
+                          <img src={litter.females[0].photo_url} alt={litter.females[0].name} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="aspect-[4/3] bg-slate-50 flex flex-col items-center justify-center">
+                          <span className="text-5xl opacity-20 mb-2">📷</span>
+                          <span className="text-xs text-slate-400">Foto kommer</span>
+                        </div>
+                      )}
+                      <div className="p-4 space-y-1">
+                        <p className="font-semibold text-slate-900">{litter.females[0].name}</p>
+                        {litter.females[0].working_dog_url && (
+                          <a href={litter.females[0].working_dog_url} target="_blank" rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-sm text-[#2563eb] hover:text-[#0c2340]">
+                            Working Dog <ExternalLink size={12} />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

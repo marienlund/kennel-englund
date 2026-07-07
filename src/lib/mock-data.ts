@@ -451,15 +451,10 @@ export const mockLitters: Litter[] = [
     available: true,
     description: 'Fantastisk kuld med 7 sunde og livlige hvalpe.',
     males: [
-      { name: 'Han 1', photo_url: null, working_dog_url: null },
-      { name: 'Han 2', photo_url: null, working_dog_url: null },
-      { name: 'Han 3', photo_url: null, working_dog_url: null },
-      { name: 'Han 4', photo_url: null, working_dog_url: null },
+      { name: 'Han', photo_url: null, working_dog_url: null },
     ],
     females: [
-      { name: 'Tæve 1', photo_url: null, working_dog_url: null },
-      { name: 'Tæve 2', photo_url: null, working_dog_url: null },
-      { name: 'Tæve 3', photo_url: null, working_dog_url: null },
+      { name: 'Tæve', photo_url: null, working_dog_url: null },
     ],
     created_at: '2025-04-20T00:00:00Z',
   },
