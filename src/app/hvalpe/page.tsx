@@ -35,7 +35,7 @@ export default async function HvalpePage() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
 
                 {/* Kolonne 1: Kuld info */}
-                <div className="bg-[#0c2340] text-white p-6 sm:p-8 flex flex-col justify-center">
+                <div className="bg-[#0c2340] text-white p-6 sm:p-8 flex flex-col justify-start">
                   <h2 className="text-xl font-bold mb-4">{litter.description || `${litter.sire_name} × ${litter.dam_name}`}</h2>
                   {birthDate && (
                     <p className="text-blue-200 text-sm mb-1"><strong className="text-white">Fødselsdato:</strong> {birthDate}</p>
