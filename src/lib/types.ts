@@ -41,6 +41,14 @@ export interface Litter {
   sire_working_dog_url?: string | null
   dam_name: string
   dam_working_dog_url?: string | null
+  sire_hd?: string | null
+  sire_ad?: string | null
+  sire_ocd?: string | null
+  sire_training?: string | null
+  dam_hd?: string | null
+  dam_ad?: string | null
+  dam_ocd?: string | null
+  dam_training?: string | null
   birth_date: string | null
   males_count: number
   females_count: number

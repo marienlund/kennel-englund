@@ -443,18 +443,21 @@ export const mockDogs: Dog[] = [
 export const mockLitters: Litter[] = [
   {
     id: 'b1b2c3d4-0001-4000-8000-000000000001',
-    sire_name: 'Rex vom Haus Englund',
-    dam_name: 'Donja vom Haus Englund',
+    sire_name: 'Aldo Mersak',
+    dam_name: 'Bellona vom Haus Mojü',
     birth_date: '2025-04-20',
     males_count: 4,
     females_count: 3,
     available: true,
-    description: 'Fantastisk kuld med 7 sunde og livlige hvalpe.',
+    description: "Englund's H-kuld",
+    sire_hd: 'HD-A', sire_ad: 'AD 0', sire_ocd: 'Fri', sire_training: 'LTV1: Fri.',
+    dam_hd: 'HD-A', dam_ad: 'AD 0', dam_ocd: 'Fri', dam_training: 'BH, StPr 1',
+    dam_working_dog_url: 'https://www.working-dog.com/dogs-details/6434038/Bellona-vom-Haus-MoJ%C3%BC',
     males: [
-      { name: 'Han', photo_url: '/kuld-han.jpg', working_dog_url: null },
+      { name: 'Aldo Mersak', photo_url: '/kuld-han.jpg', working_dog_url: null },
     ],
     females: [
-      { name: 'Tæve', photo_url: '/kuld-taeve.jpg', working_dog_url: null },
+      { name: 'Bellona vom Haus Mojü', photo_url: '/kuld-taeve.jpg', working_dog_url: 'https://www.working-dog.com/dogs-details/6434038/Bellona-vom-Haus-MoJ%C3%BC' },
     ],
     created_at: '2025-04-20T00:00:00Z',
   },

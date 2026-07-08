@@ -36,7 +36,7 @@ export default async function HvalpePage() {
 
                 {/* Kolonne 1: Kuld info */}
                 <div className="bg-[#0c2340] text-white p-6 sm:p-8 flex flex-col justify-center">
-                  <h2 className="text-xl font-bold mb-4">{litter.sire_name} × {litter.dam_name}</h2>
+                  <h2 className="text-xl font-bold mb-4">{litter.description || `${litter.sire_name} × ${litter.dam_name}`}</h2>
                   {birthDate && (
                     <p className="text-blue-200 text-sm mb-1"><strong className="text-white">Fødselsdato:</strong> {birthDate}</p>
                   )}
@@ -69,20 +69,29 @@ export default async function HvalpePage() {
                       </div>
                     )}
                   </div>
+                  {/* Ekstra foto-felter */}
+                  <div className="grid grid-cols-4 gap-1 px-4 pb-2">
+                    {[1,2,3,4].map((i) => (
+                      <div key={i} className="aspect-square bg-slate-50 rounded border border-dashed border-slate-300 flex items-center justify-center">
+                        <span className="text-lg opacity-20">📷</span>
+                      </div>
+                    ))}
+                  </div>
                   <div className="p-4">
-                    <p className="font-bold text-slate-900 text-lg">{litter.males && litter.males[0]?.name || litter.sire_name}</p>
-                    {litter.males && litter.males[0]?.working_dog_url ? (
-                      <a href={litter.males[0].working_dog_url} target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 bg-[#0c2340] text-white text-sm font-medium px-4 py-2 rounded mt-3 hover:bg-[#1e3a5f] transition-colors w-full justify-center">
-                        Se på Workingdog <ExternalLink size={14} />
-                      </a>
-                    ) : litter.sire_working_dog_url ? (
-                      <a href={litter.sire_working_dog_url} target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 bg-[#0c2340] text-white text-sm font-medium px-4 py-2 rounded mt-3 hover:bg-[#1e3a5f] transition-colors w-full justify-center">
-                        Se på Workingdog <ExternalLink size={14} />
+                    <p className="font-bold text-slate-900 text-lg mb-3">{litter.males && litter.males[0]?.name || litter.sire_name}</p>
+                    <div className="space-y-1 text-sm mb-3">
+                      {litter.sire_hd && <div className="flex gap-2"><span className="text-slate-500 font-medium">HD:</span><span className="text-slate-900">{litter.sire_hd}</span></div>}
+                      {litter.sire_ad && <div className="flex gap-2"><span className="text-slate-500 font-medium">AD:</span><span className="text-slate-900">{litter.sire_ad}</span></div>}
+                      {litter.sire_ocd && <div className="flex gap-2"><span className="text-slate-500 font-medium">OCD:</span><span className="text-slate-900">{litter.sire_ocd}</span></div>}
+                      {litter.sire_training && <div className="flex gap-2"><span className="text-slate-500 font-medium">Uddannelse:</span><span className="text-slate-900">{litter.sire_training}</span></div>}
+                    </div>
+                    {(litter.males && litter.males[0]?.working_dog_url) || litter.sire_working_dog_url ? (
+                      <a href={(litter.males && litter.males[0]?.working_dog_url) || litter.sire_working_dog_url || '#'} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 bg-[#0c2340] text-white text-sm font-medium px-4 py-2 rounded hover:bg-[#1e3a5f] transition-colors w-full justify-center">
+                        Se på Working Dog <ExternalLink size={14} />
                       </a>
                     ) : (
-                      <p className="text-xs text-slate-400 italic mt-2">Working Dog link mangler</p>
+                      <p className="text-xs text-slate-400 italic">Working Dog link mangler</p>
                     )}
                   </div>
                 </div>
@@ -102,20 +111,29 @@ export default async function HvalpePage() {
                       </div>
                     )}
                   </div>
+                  {/* Ekstra foto-felter */}
+                  <div className="grid grid-cols-4 gap-1 px-4 pb-2">
+                    {[1,2,3,4].map((i) => (
+                      <div key={i} className="aspect-square bg-slate-50 rounded border border-dashed border-slate-300 flex items-center justify-center">
+                        <span className="text-lg opacity-20">📷</span>
+                      </div>
+                    ))}
+                  </div>
                   <div className="p-4">
-                    <p className="font-bold text-slate-900 text-lg">{litter.females && litter.females[0]?.name || litter.dam_name}</p>
-                    {litter.females && litter.females[0]?.working_dog_url ? (
-                      <a href={litter.females[0].working_dog_url} target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 bg-[#0c2340] text-white text-sm font-medium px-4 py-2 rounded mt-3 hover:bg-[#1e3a5f] transition-colors w-full justify-center">
-                        Se på Workingdog <ExternalLink size={14} />
-                      </a>
-                    ) : litter.dam_working_dog_url ? (
-                      <a href={litter.dam_working_dog_url} target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 bg-[#0c2340] text-white text-sm font-medium px-4 py-2 rounded mt-3 hover:bg-[#1e3a5f] transition-colors w-full justify-center">
-                        Se på Workingdog <ExternalLink size={14} />
+                    <p className="font-bold text-slate-900 text-lg mb-3">{litter.females && litter.females[0]?.name || litter.dam_name}</p>
+                    <div className="space-y-1 text-sm mb-3">
+                      {litter.dam_hd && <div className="flex gap-2"><span className="text-slate-500 font-medium">HD:</span><span className="text-slate-900">{litter.dam_hd}</span></div>}
+                      {litter.dam_ad && <div className="flex gap-2"><span className="text-slate-500 font-medium">AD:</span><span className="text-slate-900">{litter.dam_ad}</span></div>}
+                      {litter.dam_ocd && <div className="flex gap-2"><span className="text-slate-500 font-medium">OCD:</span><span className="text-slate-900">{litter.dam_ocd}</span></div>}
+                      {litter.dam_training && <div className="flex gap-2"><span className="text-slate-500 font-medium">Uddannelse:</span><span className="text-slate-900">{litter.dam_training}</span></div>}
+                    </div>
+                    {(litter.females && litter.females[0]?.working_dog_url) || litter.dam_working_dog_url ? (
+                      <a href={(litter.females && litter.females[0]?.working_dog_url) || litter.dam_working_dog_url || '#'} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 bg-[#0c2340] text-white text-sm font-medium px-4 py-2 rounded hover:bg-[#1e3a5f] transition-colors w-full justify-center">
+                        Se på Working Dog <ExternalLink size={14} />
                       </a>
                     ) : (
-                      <p className="text-xs text-slate-400 italic mt-2">Working Dog link mangler</p>
+                      <p className="text-xs text-slate-400 italic">Working Dog link mangler</p>
                     )}
                   </div>
                 </div>
