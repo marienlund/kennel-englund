@@ -37,9 +37,12 @@ export interface Puppy {
 
 export interface Litter {
   id: string
+  title?: string | null
   sire_name: string
-  sire_working_dog_url?: string | null
   dam_name: string
+  sire_photo_url?: string | null
+  dam_photo_url?: string | null
+  sire_working_dog_url?: string | null
   dam_working_dog_url?: string | null
   sire_hd?: string | null
   sire_ad?: string | null
@@ -54,6 +57,7 @@ export interface Litter {
   females_count: number
   available: boolean
   description: string | null
+  sort_order?: number | null
   males?: Puppy[]
   females?: Puppy[]
   created_at: string
