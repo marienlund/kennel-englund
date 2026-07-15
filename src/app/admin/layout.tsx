@@ -3,13 +3,16 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Dog, Baby, Newspaper, LogOut, Home, LayoutDashboard } from 'lucide-react'
+import { Dog, Baby, Newspaper, LogOut, Home, LayoutDashboard, Trophy, Info, Phone } from 'lucide-react'
 
 const adminLinks = [
   { href: '/admin/forside', label: 'Forside', icon: LayoutDashboard },
   { href: '/admin/hunde', label: 'Hunde', icon: Dog },
   { href: '/admin/hvalpe', label: 'Hvalpe', icon: Baby },
   { href: '/admin/nyheder', label: 'Nyheder', icon: Newspaper },
+  { href: '/admin/resultater', label: 'Resultater', icon: Trophy },
+  { href: '/admin/om-os', label: 'Om os', icon: Info },
+  { href: '/admin/kontakt', label: 'Kontakt', icon: Phone },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
