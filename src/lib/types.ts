@@ -62,6 +62,7 @@ export interface Litter {
   females?: Puppy[]
   created_at: string
   litter_photos?: LitterPhoto[]
+  litter_extra_photos?: LitterExtraPhoto[]
 }
 
 export interface LitterPhoto {
@@ -69,6 +70,15 @@ export interface LitterPhoto {
   litter_id: string
   storage_path: string
   caption: string | null
+  sort_order: number
+  created_at: string
+}
+
+export interface LitterExtraPhoto {
+  id: string
+  litter_id: string
+  parent_type: 'sire' | 'dam'
+  photo_url: string
   sort_order: number
   created_at: string
 }

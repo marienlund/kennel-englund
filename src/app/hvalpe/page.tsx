@@ -3,7 +3,7 @@ import { getLitters } from '@/lib/data'
 import { Phone, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import type { Litter } from '@/lib/types'
+import type { Litter, LitterExtraPhoto } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,8 +31,57 @@ async function getSupabaseLitters(): Promise<Litter[]> {
   return getLitters()
 }
 
+async function getExtraPhotos(litterIds: string[]): Promise<Record<string, LitterExtraPhoto[]>> {
+  if (litterIds.length === 0) return {}
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url || !key) return {}
+  try {
+    const supabase = createClient(url, key)
+    const { data, error } = await supabase
+      .from('litter_extra_photos')
+      .select('*')
+      .in('litter_id', litterIds)
+      .order('sort_order', { ascending: true })
+    if (error) throw error
+    const grouped: Record<string, LitterExtraPhoto[]> = {}
+    for (const photo of (data || []) as LitterExtraPhoto[]) {
+      if (!grouped[photo.litter_id]) grouped[photo.litter_id] = []
+      grouped[photo.litter_id].push(photo)
+    }
+    return grouped
+  } catch {
+    return {}
+  }
+}
+
+function ExtraPhotoSlots({ photos, parentType }: { photos: LitterExtraPhoto[], parentType: 'sire' | 'dam' }) {
+  const filtered = photos.filter(p => p.parent_type === parentType)
+  return (
+    <div className="grid grid-cols-4 gap-1 px-4 pb-2">
+      {[0, 1, 2, 3].map((i) => {
+        const photo = filtered[i]
+        if (photo) {
+          return (
+            <a key={photo.id} href={photo.photo_url} target="_blank" rel="noopener noreferrer"
+              className="aspect-square bg-slate-50 rounded border border-slate-200 overflow-hidden hover:opacity-90 transition-opacity">
+              <img src={photo.photo_url} alt={`Ekstra foto ${i + 1}`} className="w-full h-full object-cover" />
+            </a>
+          )
+        }
+        return (
+          <div key={`empty-${i}`} className="aspect-square bg-slate-50 rounded border border-dashed border-slate-300 flex items-center justify-center">
+            <span className="text-lg opacity-20">📷</span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export default async function HvalpePage() {
   const litters = await getSupabaseLitters()
+  const extraPhotos = await getExtraPhotos(litters.map(l => l.id))
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
@@ -53,6 +102,7 @@ export default async function HvalpePage() {
             : null
 
           const heading = litter.title || `${litter.sire_name} × ${litter.dam_name}`
+          const litterPhotos = extraPhotos[litter.id] || []
 
           return (
             <div key={litter.id}>
@@ -95,13 +145,7 @@ export default async function HvalpePage() {
                     )}
                   </div>
                   {/* Ekstra foto-felter */}
-                  <div className="grid grid-cols-4 gap-1 px-4 pb-2">
-                    {[1,2,3,4].map((i) => (
-                      <div key={i} className="aspect-square bg-slate-50 rounded border border-dashed border-slate-300 flex items-center justify-center">
-                        <span className="text-lg opacity-20">📷</span>
-                      </div>
-                    ))}
-                  </div>
+                  <ExtraPhotoSlots photos={litterPhotos} parentType="sire" />
                   <div className="p-4">
                     <p className="font-bold text-slate-900 text-lg mb-3">{litter.sire_name}</p>
                     <div className="space-y-1 text-sm mb-3">
@@ -137,13 +181,7 @@ export default async function HvalpePage() {
                     )}
                   </div>
                   {/* Ekstra foto-felter */}
-                  <div className="grid grid-cols-4 gap-1 px-4 pb-2">
-                    {[1,2,3,4].map((i) => (
-                      <div key={i} className="aspect-square bg-slate-50 rounded border border-dashed border-slate-300 flex items-center justify-center">
-                        <span className="text-lg opacity-20">📷</span>
-                      </div>
-                    ))}
-                  </div>
+                  <ExtraPhotoSlots photos={litterPhotos} parentType="dam" />
                   <div className="p-4">
                     <p className="font-bold text-slate-900 text-lg mb-3">{litter.dam_name}</p>
                     <div className="space-y-1 text-sm mb-3">

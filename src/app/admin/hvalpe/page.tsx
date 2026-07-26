@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Litter } from '@/lib/types'
+import { Litter, LitterExtraPhoto } from '@/lib/types'
 import { mockLitters } from '@/lib/mock-data'
-import { Plus, Trash2, Save, X, Pencil, Upload, ChevronDown, ChevronUp } from 'lucide-react'
+import { Plus, Trash2, Save, X, Pencil, Upload } from 'lucide-react'
 
 const emptyForm = {
   title: '',
@@ -43,8 +43,34 @@ export default function AdminHvalpePage() {
   const [sirePreview, setSirePreview] = useState<string | null>(null)
   const [damPreview, setDamPreview] = useState<string | null>(null)
 
+  // Extra photos state
+  const [extraPhotos, setExtraPhotos] = useState<Record<string, LitterExtraPhoto[]>>({})
+  const [uploadingExtra, setUploadingExtra] = useState<string | null>(null)
+
+  const loadExtraPhotos = useCallback(async (litterIds: string[]) => {
+    if (litterIds.length === 0) return
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('litter_extra_photos')
+        .select('*')
+        .in('litter_id', litterIds)
+        .order('sort_order', { ascending: true })
+      if (error) throw error
+      const grouped: Record<string, LitterExtraPhoto[]> = {}
+      for (const photo of (data || []) as LitterExtraPhoto[]) {
+        if (!grouped[photo.litter_id]) grouped[photo.litter_id] = []
+        grouped[photo.litter_id].push(photo)
+      }
+      setExtraPhotos(grouped)
+    } catch {
+      // Table might not exist yet
+    }
+  }, [])
+
   useEffect(() => {
     loadLitters()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function loadLitters() {
@@ -56,7 +82,9 @@ export default function AdminHvalpePage() {
         .order('sort_order', { ascending: true })
         .order('created_at', { ascending: false })
       if (error) throw error
-      setLitters(data as Litter[])
+      const littersData = data as Litter[]
+      setLitters(littersData)
+      await loadExtraPhotos(littersData.map(l => l.id))
     } catch {
       setUseMock(true)
       setLitters(mockLitters)
@@ -140,6 +168,63 @@ export default function AdminHvalpePage() {
     }
   }
 
+  async function handleExtraPhotoUpload(litterId: string, parentType: 'sire' | 'dam', file: File) {
+    const existing = (extraPhotos[litterId] || []).filter(p => p.parent_type === parentType)
+    if (existing.length >= 4) {
+      alert('Maks 4 ekstra fotos per forælder.')
+      return
+    }
+
+    const slotKey = `${litterId}-${parentType}`
+    setUploadingExtra(slotKey)
+
+    try {
+      const url = await uploadPhoto(file, `litter-extra-${parentType}`)
+      if (!url) throw new Error('Upload failed')
+
+      const supabase = createClient()
+      const { error } = await supabase.from('litter_extra_photos').insert({
+        litter_id: litterId,
+        parent_type: parentType,
+        photo_url: url,
+        sort_order: existing.length,
+      })
+      if (error) throw error
+
+      await loadExtraPhotos([litterId])
+    } catch (err) {
+      console.error('Extra photo upload failed:', err)
+      alert('Kunne ikke uploade foto.')
+    } finally {
+      setUploadingExtra(null)
+    }
+  }
+
+  async function deleteExtraPhoto(photo: LitterExtraPhoto) {
+    if (!confirm('Slet dette foto?')) return
+    try {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from('litter_extra_photos')
+        .delete()
+        .eq('id', photo.id)
+      if (error) throw error
+
+      // Also try to delete from storage
+      try {
+        const urlParts = photo.photo_url.split('/dog-photos/')
+        if (urlParts[1]) {
+          await supabase.storage.from('dog-photos').remove([urlParts[1]])
+        }
+      } catch {}
+
+      await loadExtraPhotos([photo.litter_id])
+    } catch (err) {
+      console.error('Delete failed:', err)
+      alert('Kunne ikke slette foto.')
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
@@ -208,6 +293,59 @@ export default function AdminHvalpePage() {
     const supabase = createClient()
     await supabase.from('litters').delete().eq('id', id)
     setLitters(litters.filter((l) => l.id !== id))
+  }
+
+  function renderExtraPhotoSlots(litterId: string, parentType: 'sire' | 'dam') {
+    const photos = (extraPhotos[litterId] || []).filter(p => p.parent_type === parentType)
+    const slotKey = `${litterId}-${parentType}`
+    const isUploading = uploadingExtra === slotKey
+    const slots = []
+
+    for (let i = 0; i < 4; i++) {
+      const photo = photos[i]
+      if (photo) {
+        slots.push(
+          <div key={photo.id} className="relative aspect-square bg-slate-50 rounded border border-slate-300 overflow-hidden group">
+            <img src={photo.photo_url} alt={`Ekstra foto ${i + 1}`} className="w-full h-full object-cover" />
+            <button
+              onClick={() => deleteExtraPhoto(photo)}
+              className="absolute top-0.5 right-0.5 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+              title="Slet foto"
+            >
+              <X size={12} />
+            </button>
+          </div>
+        )
+      } else {
+        slots.push(
+          <label key={`empty-${i}`} className="aspect-square bg-slate-50 rounded border border-dashed border-slate-300 flex items-center justify-center cursor-pointer hover:bg-slate-100 hover:border-blue-400 transition-colors">
+            {isUploading && i === photos.length ? (
+              <span className="text-xs text-slate-400">...</span>
+            ) : (
+              <>
+                <Plus size={16} className="text-slate-300" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) handleExtraPhotoUpload(litterId, parentType, file)
+                    e.target.value = ''
+                  }}
+                />
+              </>
+            )}
+          </label>
+        )
+      }
+    }
+
+    return (
+      <div className="grid grid-cols-4 gap-1">
+        {slots}
+      </div>
+    )
   }
 
   if (loading) return <div className="text-center py-12 text-slate-500">Indlæser...</div>
@@ -303,6 +441,23 @@ export default function AdminHvalpePage() {
             </div>
           </div>
 
+          {/* Extra photos (only when editing existing litter) */}
+          {editingId && (
+            <div className="mb-4 border-t pt-4">
+              <h3 className="text-sm font-semibold text-slate-800 mb-3">Ekstra fotos</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-2">Far — ekstra fotos (maks 4)</label>
+                  {renderExtraPhotoSlots(editingId, 'sire')}
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 mb-2">Mor — ekstra fotos (maks 4)</label>
+                  {renderExtraPhotoSlots(editingId, 'dam')}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Health data - Sire */}
           <h3 className="text-sm font-semibold text-slate-800 mb-2 mt-4 border-t pt-4">Sundhedsdata — Far</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
@@ -391,39 +546,50 @@ export default function AdminHvalpePage() {
       )}
 
       <div className="space-y-4">
-        {litters.map((litter) => (
-          <div key={litter.id} className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-4">
-                {(litter.sire_photo_url || litter.dam_photo_url) && (
-                  <div className="flex gap-1 flex-shrink-0">
-                    {litter.sire_photo_url && <img src={litter.sire_photo_url} alt="Far" className="w-12 h-12 object-cover rounded" />}
-                    {litter.dam_photo_url && <img src={litter.dam_photo_url} alt="Mor" className="w-12 h-12 object-cover rounded" />}
+        {litters.map((litter) => {
+          const sireExtras = (extraPhotos[litter.id] || []).filter(p => p.parent_type === 'sire')
+          const damExtras = (extraPhotos[litter.id] || []).filter(p => p.parent_type === 'dam')
+          const hasExtras = sireExtras.length > 0 || damExtras.length > 0
+
+          return (
+            <div key={litter.id} className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-4">
+                  {(litter.sire_photo_url || litter.dam_photo_url) && (
+                    <div className="flex gap-1 flex-shrink-0">
+                      {litter.sire_photo_url && <img src={litter.sire_photo_url} alt="Far" className="w-12 h-12 object-cover rounded" />}
+                      {litter.dam_photo_url && <img src={litter.dam_photo_url} alt="Mor" className="w-12 h-12 object-cover rounded" />}
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="font-bold text-slate-900">{litter.title || `${litter.sire_name} × ${litter.dam_name}`}</h3>
+                    <p className="text-sm text-slate-500 mt-0.5">{litter.sire_name} × {litter.dam_name}</p>
+                    <p className="text-sm text-slate-500 mt-1">
+                      {litter.birth_date ? `Født ${new Date(litter.birth_date).toLocaleDateString('da-DK')}` : 'Planlagt'}
+                      {' · '}{litter.males_count}♂ {litter.females_count}♀
+                      {' · '}{litter.available ? '✅ Ledige' : '❌ Reserveret'}
+                      {litter.sort_order != null ? ` · #${litter.sort_order}` : ''}
+                    </p>
+                    {hasExtras && (
+                      <p className="text-xs text-slate-400 mt-1">
+                        📷 {sireExtras.length} ekstra far-foto, {damExtras.length} ekstra mor-foto
+                      </p>
+                    )}
+                    {litter.description && <p className="text-sm text-slate-600 mt-2 line-clamp-2">{litter.description}</p>}
                   </div>
-                )}
-                <div>
-                  <h3 className="font-bold text-slate-900">{litter.title || `${litter.sire_name} × ${litter.dam_name}`}</h3>
-                  <p className="text-sm text-slate-500 mt-0.5">{litter.sire_name} × {litter.dam_name}</p>
-                  <p className="text-sm text-slate-500 mt-1">
-                    {litter.birth_date ? `Født ${new Date(litter.birth_date).toLocaleDateString('da-DK')}` : 'Planlagt'}
-                    {' · '}{litter.males_count}♂ {litter.females_count}♀
-                    {' · '}{litter.available ? '✅ Ledige' : '❌ Reserveret'}
-                    {litter.sort_order != null ? ` · #${litter.sort_order}` : ''}
-                  </p>
-                  {litter.description && <p className="text-sm text-slate-600 mt-2 line-clamp-2">{litter.description}</p>}
+                </div>
+                <div className="flex items-center gap-1">
+                  <button onClick={() => startEdit(litter)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Rediger">
+                    <Pencil size={16} />
+                  </button>
+                  <button onClick={() => deleteLitter(litter.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Slet">
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               </div>
-              <div className="flex items-center gap-1">
-                <button onClick={() => startEdit(litter)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Rediger">
-                  <Pencil size={16} />
-                </button>
-                <button onClick={() => deleteLitter(litter.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Slet">
-                  <Trash2 size={16} />
-                </button>
-              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
         {litters.length === 0 && (
           <div className="text-center py-8 text-slate-400">Ingen kuld endnu.</div>
         )}
