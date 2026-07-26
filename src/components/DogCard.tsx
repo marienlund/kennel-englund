@@ -35,12 +35,12 @@ export default function DogCard({ dog }: { dog: Dog }) {
     <Link href={`/hunde/${dog.id}`} className="group block">
       <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow overflow-hidden border border-slate-200">
         {/* Photo */}
-        <div className="aspect-[4/3] bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden">
           {dog.photo_url ? (
             <img
               src={dog.photo_url}
               alt={dog.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
