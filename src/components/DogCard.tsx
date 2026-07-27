@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Dog } from '@/lib/types'
-import { Shield, Award } from 'lucide-react'
+import { Shield, Award, FileText } from 'lucide-react'
 
 function calculateAge(birthdate: string): number {
   const birth = new Date(birthdate)
@@ -68,6 +68,17 @@ export default function DogCard({ dog }: { dog: Dog }) {
             <HealthBadge label="AD" value={dog.ad_score} />
             <HealthBadge label="OCD" value={dog.ocd_status} />
           </div>
+          {dog.pdf_url && (
+            <a
+              href={dog.pdf_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-1 text-xs text-red-600 hover:text-red-800 mt-2 font-medium"
+            >
+              <FileText size={14} /> PDF
+            </a>
+          )}
         </div>
       </div>
     </Link>

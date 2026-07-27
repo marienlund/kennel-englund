@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, Save, Upload, X, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeft, Save, Upload, X, Plus, Trash2, FileText } from 'lucide-react'
 import { mockDogs } from '@/lib/mock-data'
 import type { DogPhoto } from '@/lib/types'
 
@@ -21,6 +21,13 @@ export default function EditHundPage() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [uploadStatus, setUploadStatus] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // PDF state
+  const [currentPdfUrl, setCurrentPdfUrl] = useState<string | null>(null)
+  const [pdfFile, setPdfFile] = useState<File | null>(null)
+  const [pdfUploadStatus, setPdfUploadStatus] = useState<string | null>(null)
+  const [removePdf, setRemovePdf] = useState(false)
+  const pdfFileInputRef = useRef<HTMLInputElement>(null)
 
   // Extra photos state
   const [extraPhotos, setExtraPhotos] = useState<DogPhoto[]>([])
@@ -67,6 +74,9 @@ export default function EditHundPage() {
       if (data.photo_url) {
         setCurrentPhotoUrl(data.photo_url)
       }
+      if (data.pdf_url) {
+        setCurrentPdfUrl(data.pdf_url)
+      }
     } catch {
       // Fall back to mock
       const mock = mockDogs.find((d) => d.id === id)
@@ -88,6 +98,9 @@ export default function EditHundPage() {
         })
         if (mock.photo_url) {
           setCurrentPhotoUrl(mock.photo_url)
+        }
+        if (mock.pdf_url) {
+          setCurrentPdfUrl(mock.pdf_url)
         }
       }
     } finally {
@@ -236,6 +249,25 @@ export default function EditHundPage() {
         photoUrl = await uploadPhoto(supabase, id)
       }
 
+      // Upload PDF if selected
+      let pdfUrl: string | null | undefined
+      if (pdfFile) {
+        const pdfPath = `pdf-${id}-${Date.now()}.pdf`
+        setPdfUploadStatus('Uploader PDF...')
+        const { error: pdfUploadError } = await supabase.storage
+          .from('dog-photos')
+          .upload(pdfPath, pdfFile, { upsert: true })
+        if (pdfUploadError) {
+          setPdfUploadStatus(`Fejl: ${pdfUploadError.message}`)
+          throw pdfUploadError
+        }
+        const { data: { publicUrl } } = supabase.storage
+          .from('dog-photos')
+          .getPublicUrl(pdfPath)
+        pdfUrl = publicUrl
+        setPdfUploadStatus('PDF uploadet!')
+      }
+
       const updateData: Record<string, unknown> = {
         ...form,
         birthdate: form.birthdate || null,
@@ -256,6 +288,12 @@ export default function EditHundPage() {
       } else if (!currentPhotoUrl && !photoFile) {
         // Photo was cleared
         updateData.photo_url = null
+      }
+
+      if (pdfUrl) {
+        updateData.pdf_url = pdfUrl
+      } else if (removePdf) {
+        updateData.pdf_url = null
       }
 
       const { error } = await supabase
@@ -329,6 +367,74 @@ export default function EditHundPage() {
           {uploadStatus && (
             <p className={`text-sm mt-2 ${uploadStatus.startsWith('Fejl') ? 'text-red-600' : 'text-green-600'}`}>
               {uploadStatus}
+            </p>
+          )}
+        </div>
+
+        {/* PDF section */}
+        <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
+          <h2 className="font-bold text-slate-900 mb-4">PDF-fil (sundhedsattest, stamtavle etc.)</h2>
+          {currentPdfUrl && !removePdf && (
+            <div className="flex items-center gap-3 mb-4 bg-slate-50 rounded-lg p-3 border border-slate-200">
+              <FileText size={20} className="text-red-600 flex-shrink-0" />
+              <a href={currentPdfUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:text-blue-800 underline truncate flex-1">
+                Nuværende PDF
+              </a>
+              <button
+                type="button"
+                onClick={() => {
+                  setRemovePdf(true)
+                  setCurrentPdfUrl(null)
+                  setPdfFile(null)
+                  if (pdfFileInputRef.current) pdfFileInputRef.current.value = ''
+                }}
+                className="bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 transition-colors"
+                title="Fjern PDF"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          )}
+          {pdfFile && (
+            <div className="flex items-center gap-3 mb-4 bg-green-50 rounded-lg p-3 border border-green-200">
+              <FileText size={20} className="text-green-600 flex-shrink-0" />
+              <span className="text-sm text-green-800 truncate flex-1">{pdfFile.name}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setPdfFile(null)
+                  if (pdfFileInputRef.current) pdfFileInputRef.current.value = ''
+                }}
+                className="bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 transition-colors"
+                title="Fjern"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          )}
+          <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-6 cursor-pointer hover:border-blue-400 transition-colors">
+            <Upload size={24} className="text-slate-400 mb-2" />
+            <span className="text-sm text-slate-500">
+              {currentPdfUrl && !removePdf ? 'Klik for at erstatte PDF' : 'Klik for at vælge PDF-fil'}
+            </span>
+            <input
+              ref={pdfFileInputRef}
+              type="file"
+              accept=".pdf"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) {
+                  setPdfFile(file)
+                  setRemovePdf(false)
+                  setPdfUploadStatus(null)
+                }
+              }}
+            />
+          </label>
+          {pdfUploadStatus && (
+            <p className={`text-sm mt-2 ${pdfUploadStatus.startsWith('Fejl') ? 'text-red-600' : 'text-green-600'}`}>
+              {pdfUploadStatus}
             </p>
           )}
         </div>

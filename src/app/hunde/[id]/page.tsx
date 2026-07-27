@@ -1,7 +1,7 @@
 import { getDog, getDogs } from '@/lib/data'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Trophy, GraduationCap } from 'lucide-react'
+import { ArrowLeft, Trophy, GraduationCap, FileText } from 'lucide-react'
 import ExtraInfoBox from '@/components/ExtraInfoBox'
 import { createClient } from '@supabase/supabase-js'
 import type { Metadata } from 'next'
@@ -211,6 +211,20 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
               <div className="border-t border-slate-200 pt-4">
                 <h2 className="text-sm font-bold text-[#0c2340] mb-2">Kuld</h2>
                 <p className="text-sm text-slate-600 leading-relaxed">{dog.achievements}</p>
+              </div>
+            )}
+
+            {/* PDF download */}
+            {dog.pdf_url && (
+              <div className="border-t border-slate-200 pt-4">
+                <a
+                  href={dog.pdf_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
+                >
+                  <FileText size={16} /> Download PDF
+                </a>
               </div>
             )}
 

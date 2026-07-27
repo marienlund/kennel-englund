@@ -14,6 +14,7 @@ export interface Dog {
   working_dog_url?: string | null
   extra_info?: string | null
   photo_url?: string | null
+  pdf_url?: string | null
   is_featured: boolean
   created_at: string
   updated_at: string
