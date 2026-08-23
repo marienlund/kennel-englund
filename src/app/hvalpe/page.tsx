@@ -134,8 +134,8 @@ export default async function HvalpePage() {
                   <div className="relative">
                     <span className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded z-10">Far</span>
                     {litter.sire_photo_url ? (
-                      <div className="bg-slate-100 overflow-hidden rounded h-[420px]">
-                        <img src={litter.sire_photo_url} alt={litter.sire_name} className="w-full h-full object-contain bg-slate-100" />
+                      <div className="aspect-[4/3] bg-slate-100 overflow-hidden rounded">
+                        <img src={litter.sire_photo_url} alt={litter.sire_name} className="w-full h-full object-cover" />
                       </div>
                     ) : (
                       <div className="aspect-[3/4] bg-slate-50 flex flex-col items-center justify-center">
@@ -170,8 +170,8 @@ export default async function HvalpePage() {
                   <div className="relative">
                     <span className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded z-10">Mor</span>
                     {litter.dam_photo_url ? (
-                      <div className="bg-slate-100 overflow-hidden rounded h-[420px]">
-                        <img src={litter.dam_photo_url} alt={litter.dam_name} className="w-full h-full object-contain bg-slate-100" />
+                      <div className="aspect-[4/3] bg-slate-100 overflow-hidden rounded">
+                        <img src={litter.dam_photo_url} alt={litter.dam_name} className="w-full h-full object-cover" />
                       </div>
                     ) : (
                       <div className="aspect-[3/4] bg-slate-50 flex flex-col items-center justify-center">
