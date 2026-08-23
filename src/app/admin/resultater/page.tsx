@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Save, Plus, Trash2, Upload, X } from 'lucide-react'
+import { Save, Plus, Trash2, Upload, X, ChevronUp, ChevronDown } from 'lucide-react'
 
 interface Result {
   id?: string
@@ -115,6 +115,18 @@ export default function AdminResultaterPage() {
     }
     setResults(results.filter((_, i) => i !== index))
     setMessage({ type: 'success', text: 'Resultat slettet.' })
+  }
+
+  function moveResult(index: number, direction: number) {
+    const newIndex = index + direction
+    if (newIndex < 0 || newIndex >= results.length) return
+    const updated = [...results]
+    const temp = updated[index]
+    updated[index] = updated[newIndex]
+    updated[newIndex] = temp
+    // Update sort_order for all
+    updated.forEach((r, i) => { r.sort_order = i })
+    setResults(updated)
   }
 
   async function handleSave() {
@@ -237,7 +249,25 @@ export default function AdminResultaterPage() {
                   placeholder="Navn, Klub"
                 />
               </div>
-              <div className="sm:col-span-1 flex justify-end">
+              <div className="sm:col-span-1 flex justify-end items-center gap-1">
+                <div className="flex flex-col">
+                  <button
+                    onClick={() => moveResult(i, -1)}
+                    disabled={i === 0}
+                    className="p-0.5 text-slate-400 hover:text-blue-600 disabled:opacity-20 transition-colors"
+                    title="Flyt op"
+                  >
+                    <ChevronUp size={16} />
+                  </button>
+                  <button
+                    onClick={() => moveResult(i, 1)}
+                    disabled={i === results.length - 1}
+                    className="p-0.5 text-slate-400 hover:text-blue-600 disabled:opacity-20 transition-colors"
+                    title="Flyt ned"
+                  >
+                    <ChevronDown size={16} />
+                  </button>
+                </div>
                 <button
                   onClick={() => deleteResult(i)}
                   className="p-2 text-slate-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50"
