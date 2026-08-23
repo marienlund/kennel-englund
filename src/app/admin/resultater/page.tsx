@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Save, Plus, Trash2, Trophy, Medal, Award } from 'lucide-react'
+import { Save, Plus, Trash2, Upload, X } from 'lucide-react'
 
 interface Result {
   id?: string
@@ -12,6 +12,8 @@ interface Result {
   handler: string
   result_type: string
   sort_order: number
+  description?: string
+  image_url?: string
   isNew?: boolean
 }
 
@@ -21,6 +23,7 @@ export default function AdminResultaterPage() {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [noTable, setNoTable] = useState(false)
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null)
 
   useEffect(() => {
     loadResults()
@@ -44,14 +47,20 @@ export default function AdminResultaterPage() {
   }
 
   function addResult() {
+    const today = new Date()
+    const dd = String(today.getDate()).padStart(2, '0')
+    const mm = String(today.getMonth() + 1).padStart(2, '0')
+    const yyyy = today.getFullYear()
     setResults([
       {
-        year: new Date().getFullYear().toString(),
+        year: `${dd}.${mm}.${yyyy}`,
         title: '',
         dog_name: '',
         handler: '',
-        result_type: 'gold',
+        result_type: '',
         sort_order: 0,
+        description: '',
+        image_url: '',
         isNew: true,
       },
       ...results,
@@ -62,6 +71,36 @@ export default function AdminResultaterPage() {
     const updated = [...results]
     updated[index] = { ...updated[index], [field]: value }
     setResults(updated)
+  }
+
+  async function handleImageUpload(index: number, file: File) {
+    setUploadingIndex(index)
+    try {
+      const supabase = createClient()
+      const ext = file.name.split('.').pop()
+      const fileName = `results/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      
+      const { error: uploadError } = await supabase.storage
+        .from('dog-photos')
+        .upload(fileName, file, { cacheControl: '3600', upsert: false })
+      
+      if (uploadError) throw uploadError
+
+      const { data: urlData } = supabase.storage
+        .from('dog-photos')
+        .getPublicUrl(fileName)
+
+      updateResult(index, 'image_url', urlData.publicUrl)
+      setMessage({ type: 'success', text: 'Billede uploadet!' })
+    } catch {
+      setMessage({ type: 'error', text: 'Kunne ikke uploade billede.' })
+    } finally {
+      setUploadingIndex(null)
+    }
+  }
+
+  function removeImage(index: number) {
+    updateResult(index, 'image_url', '')
   }
 
   async function deleteResult(index: number) {
@@ -91,6 +130,8 @@ export default function AdminResultaterPage() {
           handler: r.handler,
           result_type: r.result_type,
           sort_order: r.sort_order,
+          description: r.description || '',
+          image_url: r.image_url || '',
         }
         if (r.id && !r.isNew) {
           const { error } = await supabase.from('results').update(row).eq('id', r.id)
@@ -107,12 +148,6 @@ export default function AdminResultaterPage() {
     } finally {
       setSaving(false)
     }
-  }
-
-  function ResultTypeIcon({ type }: { type: string }) {
-    if (type === 'gold') return <Trophy className="w-4 h-4 text-yellow-500" />
-    if (type === 'silver') return <Medal className="w-4 h-4 text-slate-400" />
-    return <Award className="w-4 h-4 text-amber-700" />
   }
 
   if (loading) return <div className="text-center py-12 text-slate-500">Indlæser...</div>
@@ -141,7 +176,7 @@ export default function AdminResultaterPage() {
 
       {noTable && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg px-4 py-3 text-sm mb-4">
-          ⚠️ Tabellen <code>results</code> findes ikke endnu. Kør SQL-scriptet <code>supabase-results-table.sql</code> i Supabase SQL Editor først.
+          ⚠️ Tabellen <code>results</code> findes ikke endnu. Kør SQL-scriptet i Supabase SQL Editor først.
         </div>
       )}
 
@@ -162,13 +197,14 @@ export default function AdminResultaterPage() {
         {results.map((r, i) => (
           <div key={r.id || `new-${i}`} className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-              <div className="sm:col-span-1">
-                <label className="block text-xs font-medium text-slate-500 mb-1">År</label>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-medium text-slate-500 mb-1">Dato</label>
                 <input
                   type="text"
                   value={r.year}
                   onChange={(e) => updateResult(i, 'year', e.target.value)}
                   className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none"
+                  placeholder="dd.mm.yyyy"
                 />
               </div>
               <div className="sm:col-span-2">
@@ -201,21 +237,6 @@ export default function AdminResultaterPage() {
                   placeholder="Navn, Klub"
                 />
               </div>
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-medium text-slate-500 mb-1">Type</label>
-                <div className="flex items-center gap-2">
-                  <ResultTypeIcon type={r.result_type} />
-                  <select
-                    value={r.result_type}
-                    onChange={(e) => updateResult(i, 'result_type', e.target.value)}
-                    className="flex-1 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none"
-                  >
-                    <option value="gold">Guld</option>
-                    <option value="silver">Sølv</option>
-                    <option value="bronze">Bronze</option>
-                  </select>
-                </div>
-              </div>
               <div className="sm:col-span-1 flex justify-end">
                 <button
                   onClick={() => deleteResult(i)}
@@ -224,6 +245,54 @@ export default function AdminResultaterPage() {
                 >
                   <Trash2 size={16} />
                 </button>
+              </div>
+            </div>
+
+            {/* Description + Image row */}
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 mt-3 items-start">
+              <div className="sm:col-span-7">
+                <label className="block text-xs font-medium text-slate-500 mb-1">Beskrivelse</label>
+                <textarea
+                  value={r.description || ''}
+                  onChange={(e) => updateResult(i, 'description', e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none resize-y"
+                  rows={2}
+                  placeholder="Ekstra information om resultatet..."
+                />
+              </div>
+              <div className="sm:col-span-5">
+                <label className="block text-xs font-medium text-slate-500 mb-1">Billede</label>
+                {r.image_url ? (
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={r.image_url}
+                      alt="Resultat billede"
+                      className="h-16 w-16 object-cover rounded-lg border border-slate-200"
+                    />
+                    <button
+                      onClick={() => removeImage(i)}
+                      className="p-1.5 text-slate-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50"
+                      title="Fjern billede"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="inline-flex items-center gap-2 bg-slate-50 hover:bg-slate-100 text-slate-600 font-medium px-3 py-1.5 rounded-lg transition-colors text-sm cursor-pointer border border-slate-300">
+                    <Upload size={14} />
+                    {uploadingIndex === i ? 'Uploader...' : 'Upload billede'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) handleImageUpload(i, file)
+                      }}
+                      disabled={uploadingIndex === i}
+                    />
+                  </label>
+                )}
               </div>
             </div>
           </div>

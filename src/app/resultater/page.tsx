@@ -1,14 +1,14 @@
-import { Award, Trophy, Medal } from 'lucide-react'
 import { createServerSupabase } from '@/lib/supabase/server'
+import Image from 'next/image'
 
 export const dynamic = 'force-dynamic'
 
 const hardcodedResults = [
-  { year: '2019', title: 'DM Guld', dog_name: "Team Englund's Aqua", handler: 'Rita Andersen, PH Odder', result_type: 'gold' },
-  { year: '2015', title: 'Udtaget til DM', dog_name: "Team Englund's Bessi", handler: 'Bente Andersen, PH Odder', result_type: 'silver' },
-  { year: '2014', title: 'DM Guld', dog_name: "Team Englund's Cooper", handler: 'Niels Hansen, PH Odense', result_type: 'gold' },
-  { year: '2012', title: 'DM Guld', dog_name: "Team Englund's Aqua", handler: 'Rita Andersen, PH Odder', result_type: 'gold' },
-  { year: '2012', title: 'DM Sølv', dog_name: "Team Englund's Basse", handler: '', result_type: 'silver' },
+  { year: '2019', title: 'DM Guld', dog_name: "Team Englund's Aqua", handler: 'Rita Andersen, PH Odder', result_type: 'gold', description: '', image_url: '' },
+  { year: '2015', title: 'Udtaget til DM', dog_name: "Team Englund's Bessi", handler: 'Bente Andersen, PH Odder', result_type: 'silver', description: '', image_url: '' },
+  { year: '2014', title: 'DM Guld', dog_name: "Team Englund's Cooper", handler: 'Niels Hansen, PH Odense', result_type: 'gold', description: '', image_url: '' },
+  { year: '2012', title: 'DM Guld', dog_name: "Team Englund's Aqua", handler: 'Rita Andersen, PH Odder', result_type: 'gold', description: '', image_url: '' },
+  { year: '2012', title: 'DM Sølv', dog_name: "Team Englund's Basse", handler: '', result_type: 'silver', description: '', image_url: '' },
 ]
 
 async function getResults() {
@@ -27,12 +27,6 @@ async function getResults() {
   }
 }
 
-function ResultIcon({ type }: { type: string }) {
-  if (type === 'gold') return <Trophy className="w-6 h-6 text-yellow-500" />
-  if (type === 'silver') return <Medal className="w-6 h-6 text-slate-400" />
-  return <Award className="w-6 h-6 text-blue-400" />
-}
-
 export default async function ResultaterPage() {
   const resultater = await getResults()
 
@@ -42,19 +36,37 @@ export default async function ResultaterPage() {
       <p className="text-slate-600 mb-10">Vores hunde har opnået flotte resultater i konkurrencer og tjeneste.</p>
 
       <div className="space-y-4">
-        {resultater.map((r, i) => (
+        {resultater.map((r: { id?: string; year: string; title: string; dog_name: string; handler: string; description?: string; image_url?: string }, i: number) => (
           <div key={r.id || i} className="flex items-start gap-4 bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            {/* Left: Date */}
             <div className="flex-shrink-0 mt-0.5">
-              <ResultIcon type={r.result_type} />
+              <span className="text-xs font-medium text-slate-400 block">Dato</span>
+              <span className="text-sm font-bold text-blue-600">{r.year}</span>
             </div>
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <span className="text-sm font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full">{r.year}</span>
-                <h3 className="font-bold text-[#0c2340]">{r.title}</h3>
-              </div>
+
+            {/* Middle: Title, dog, handler */}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-[#0c2340]">{r.title}</h3>
               <p className="text-slate-700 font-medium">{r.dog_name}</p>
               {r.handler && <p className="text-sm text-slate-500">{r.handler}</p>}
+              {r.description && (
+                <p className="text-sm text-slate-600 mt-2">{r.description}</p>
+              )}
             </div>
+
+            {/* Right: Image if uploaded */}
+            {r.image_url && (
+              <div className="flex-shrink-0">
+                <Image
+                  src={r.image_url}
+                  alt={r.title || 'Resultat billede'}
+                  width={80}
+                  height={80}
+                  className="rounded-lg object-cover w-20 h-20"
+                  unoptimized
+                />
+              </div>
+            )}
           </div>
         ))}
       </div>
