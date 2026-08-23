@@ -37,36 +37,34 @@ export default async function ResultaterPage() {
 
       <div className="space-y-4">
         {resultater.map((r: { id?: string; year: string; title: string; dog_name: string; handler: string; description?: string; image_url?: string }, i: number) => (
-          <div key={r.id || i} className="flex items-start gap-4 bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-            {/* Left: Date */}
-            <div className="flex-shrink-0 mt-0.5">
-              <span className="text-xs font-medium text-slate-400 block">Dato</span>
-              <span className="text-sm font-bold text-blue-600">{r.year}</span>
-            </div>
+          <div key={r.id || i} className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+            <div className="flex items-stretch">
+              {/* Left: Date */}
+              <div className="bg-[#0c2340] text-white px-4 py-5 flex flex-col items-center justify-center min-w-[90px]">
+                <span className="text-lg font-bold">{r.year}</span>
+              </div>
 
-            {/* Middle: Title, dog, handler */}
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-[#0c2340]">{r.title}</h3>
-              <p className="text-slate-700 font-medium">{r.dog_name}</p>
-              {r.handler && <p className="text-sm text-slate-500">{r.handler}</p>}
-              {r.description && (
-                <p className="text-sm text-slate-600 mt-2">{r.description}</p>
+              {/* Middle: Title, dog, handler, description */}
+              <div className="flex-1 p-5">
+                <h3 className="font-bold text-[#0c2340] text-lg">{r.title}</h3>
+                <p className="text-slate-700 font-medium">{r.dog_name}</p>
+                {r.handler && <p className="text-sm text-slate-500">{r.handler}</p>}
+                {r.description && (
+                  <p className="text-sm text-slate-600 mt-2 leading-relaxed">{r.description}</p>
+                )}
+              </div>
+
+              {/* Right: Image if uploaded */}
+              {r.image_url && (
+                <div className="flex-shrink-0 w-32">
+                  <img
+                    src={r.image_url}
+                    alt={r.title || 'Resultat billede'}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               )}
             </div>
-
-            {/* Right: Image if uploaded */}
-            {r.image_url && (
-              <div className="flex-shrink-0">
-                <Image
-                  src={r.image_url}
-                  alt={r.title || 'Resultat billede'}
-                  width={80}
-                  height={80}
-                  className="rounded-lg object-cover w-20 h-20"
-                  unoptimized
-                />
-              </div>
-            )}
           </div>
         ))}
       </div>
