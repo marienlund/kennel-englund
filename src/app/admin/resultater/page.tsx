@@ -138,19 +138,19 @@ export default function AdminResultaterPage() {
         const row = {
           year: r.year,
           title: r.title,
-          dog_name: r.dog_name,
-          handler: r.handler,
-          result_type: r.result_type,
+          dog_name: r.dog_name || '',
+          handler: r.handler || '',
+          result_type: r.result_type || 'other',
           sort_order: r.sort_order,
-          description: r.description || '',
-          image_url: r.image_url || '',
+          description: r.description || null,
+          image_url: r.image_url || null,
         }
         if (r.id && !r.isNew) {
           const { error } = await supabase.from('results').update(row).eq('id', r.id)
-          if (error) throw error
+          if (error) { console.error('Update error:', error); throw error }
         } else {
           const { error } = await supabase.from('results').insert(row)
-          if (error) throw error
+          if (error) { console.error('Insert error:', error); throw error }
         }
       }
       setMessage({ type: 'success', text: 'Resultater gemt!' })
