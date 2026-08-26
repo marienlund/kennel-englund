@@ -117,7 +117,7 @@ export default function AdminResultaterPage() {
     setMessage({ type: 'success', text: 'Resultat slettet.' })
   }
 
-  function moveResult(index: number, direction: number) {
+  async function moveResult(index: number, direction: number) {
     const newIndex = index + direction
     if (newIndex < 0 || newIndex >= results.length) return
     const updated = [...results]
@@ -127,6 +127,14 @@ export default function AdminResultaterPage() {
     // Update sort_order for all
     updated.forEach((r, i) => { r.sort_order = i })
     setResults(updated)
+
+    // Auto-save sort order to Supabase
+    const supabase = createClient()
+    for (const r of updated) {
+      if (r.id && !r.isNew) {
+        await supabase.from('results').update({ sort_order: r.sort_order }).eq('id', r.id)
+      }
+    }
   }
 
   async function handleSave() {
