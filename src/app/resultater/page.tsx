@@ -17,7 +17,6 @@ async function getResults() {
     const { data, error } = await supabase
       .from('results')
       .select('*')
-      .order('year', { ascending: false })
       .order('sort_order', { ascending: true })
     if (error) throw error
     if (data && data.length > 0) return data
