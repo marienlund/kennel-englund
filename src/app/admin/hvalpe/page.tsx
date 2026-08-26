@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Litter, LitterExtraPhoto } from '@/lib/types'
 import { mockLitters } from '@/lib/mock-data'
-import { Plus, Trash2, Save, X, Pencil, Upload } from 'lucide-react'
+import { Plus, Trash2, Save, X, Pencil, Upload, ChevronUp, ChevronDown } from 'lucide-react'
 
 const emptyForm = {
   title: '',
@@ -282,6 +282,26 @@ export default function AdminHvalpePage() {
     } finally {
       setSaving(false)
     }
+  }
+
+  async function moveLitter(id: string, direction: number) {
+    const index = litters.findIndex(l => l.id === id)
+    if (index === -1) return
+    const newIndex = index + direction
+    if (newIndex < 0 || newIndex >= litters.length) return
+
+    const supabase = createClient()
+    const updated = [...litters]
+    const temp = updated[index]
+    updated[index] = updated[newIndex]
+    updated[newIndex] = temp
+
+    // Save new sort_order for both
+    for (let i = 0; i < updated.length; i++) {
+      const { error } = await supabase.from('litters').update({ sort_order: i }).eq('id', updated[i].id)
+      if (error) { console.error('Sort error:', error); return }
+    }
+    setLitters(updated)
   }
 
   async function deleteLitter(id: string) {
@@ -579,6 +599,14 @@ export default function AdminHvalpePage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
+                  <div className="flex flex-col">
+                    <button onClick={() => moveLitter(litter.id, -1)} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-20 transition-colors" title="Flyt op" disabled={litters.indexOf(litter) === 0}>
+                      <ChevronUp size={16} />
+                    </button>
+                    <button onClick={() => moveLitter(litter.id, 1)} className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-20 transition-colors" title="Flyt ned" disabled={litters.indexOf(litter) === litters.length - 1}>
+                      <ChevronDown size={16} />
+                    </button>
+                  </div>
                   <button onClick={() => startEdit(litter)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Rediger">
                     <Pencil size={16} />
                   </button>
