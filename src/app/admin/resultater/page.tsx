@@ -128,11 +128,24 @@ export default function AdminResultaterPage() {
     setResults(updated)
 
     // Auto-save sort order to Supabase
-    const supabase = createClient()
-    for (const r of updated) {
-      if (r.id && !r.isNew) {
-        await supabase.from('results').update({ sort_order: r.sort_order }).eq('id', r.id)
+    try {
+      const supabase = createClient()
+      let errors = 0
+      for (const r of updated) {
+        if (r.id && !r.isNew) {
+          const { error } = await supabase.from('results').update({ sort_order: r.sort_order }).eq('id', r.id)
+          if (error) { console.error('Sort save error:', error); errors++ }
+        }
       }
+      if (errors === 0) {
+        setMessage({ type: 'success', text: 'Rækkefølge gemt!' })
+        setTimeout(() => setMessage(null), 2000)
+      } else {
+        setMessage({ type: 'error', text: 'Kunne ikke gemme rækkefølge. Prøv "Gem alle" knappen.' })
+      }
+    } catch (err) {
+      console.error('Sort save failed:', err)
+      setMessage({ type: 'error', text: 'Fejl ved gemning af rækkefølge.' })
     }
   }
 
