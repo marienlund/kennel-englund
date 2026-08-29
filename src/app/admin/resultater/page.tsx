@@ -35,7 +35,6 @@ export default function AdminResultaterPage() {
       const { data, error } = await supabase
         .from('results')
         .select('*')
-        .order('year', { ascending: false })
         .order('sort_order', { ascending: true })
       if (error) throw error
       setResults(data || [])
