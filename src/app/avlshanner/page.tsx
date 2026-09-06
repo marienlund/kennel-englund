@@ -46,12 +46,10 @@ export default async function AvlshannerPage() {
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {males.length === 0 && <p>Ingen hanner fundet</p>}
-        {males.map((dog: any) => (
+        {males.map((dog) => (
           <DogCard key={dog.id} dog={dog} />
         ))}
       </div>
-      <p className="text-xs text-slate-400 mt-4">Debug: {males.length} hanner loaded</p>
     </div>
   )
 }
