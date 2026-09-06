@@ -4,6 +4,7 @@ import NewsCard from '@/components/NewsCard'
 import { getFeaturedDogs, getLatestNews } from '@/lib/data'
 import { ArrowRight, Heart, Shield, Award } from 'lucide-react'
 import { createServerSupabase } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,9 +36,45 @@ async function getSiteSettings() {
 }
 
 export default async function HomePage() {
+  // Fetch news from Supabase (editable by admin)
+  async function getSupabaseNews() {
+    try {
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      if (url && key) {
+        const supabase = createClient(url, key)
+        const { data } = await supabase
+          .from('news')
+          .select('*')
+          .order('published_at', { ascending: false })
+          .limit(3)
+        if (data && data.length > 0) return data
+      }
+    } catch {}
+    return getLatestNews(3)
+  }
+
+  // Fetch featured dogs from Supabase
+  async function getSupabaseFeatured() {
+    try {
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      if (url && key) {
+        const supabase = createClient(url, key)
+        const { data } = await supabase
+          .from('dogs')
+          .select('*')
+          .eq('is_featured', true)
+          .order('name')
+        if (data && data.length > 0) return data
+      }
+    } catch {}
+    return getFeaturedDogs()
+  }
+
   const [featuredDogs, latestNews, settings] = await Promise.all([
-    getFeaturedDogs(),
-    getLatestNews(3),
+    getSupabaseFeatured(),
+    getSupabaseNews(),
     getSiteSettings(),
   ])
 
