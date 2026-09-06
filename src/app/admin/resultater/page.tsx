@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Save, Plus, Trash2, Upload, X, ChevronUp, ChevronDown } from 'lucide-react'
+import { Save, Plus, Trash2, Upload, X, ChevronUp, ChevronDown, Check } from 'lucide-react'
 
 interface Result {
   id?: string
@@ -24,6 +24,7 @@ export default function AdminResultaterPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [noTable, setNoTable] = useState(false)
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null)
+  const [savingIndex, setSavingIndex] = useState<number | null>(null)
 
   useEffect(() => {
     loadResults()
@@ -146,6 +147,43 @@ export default function AdminResultaterPage() {
     } catch (err) {
       console.error('Sort save failed:', err)
       setMessage({ type: 'error', text: 'Fejl ved gemning af rækkefølge.' })
+    }
+  }
+
+  async function saveOneResult(index: number) {
+    const r = results[index]
+    setSavingIndex(index)
+    setMessage(null)
+    try {
+      const supabase = createClient()
+      const row = {
+        year: r.year,
+        title: r.title,
+        dog_name: r.dog_name || '',
+        handler: r.handler || '',
+        result_type: r.result_type || 'other',
+        sort_order: r.sort_order,
+        description: r.description || null,
+        image_url: r.image_url || null,
+      }
+      if (r.id && !r.isNew) {
+        const { error } = await supabase.from('results').update(row).eq('id', r.id)
+        if (error) throw error
+      } else {
+        const { data, error } = await supabase.from('results').insert(row).select()
+        if (error) throw error
+        if (data && data[0]) {
+          const updated = [...results]
+          updated[index] = { ...updated[index], id: data[0].id, isNew: false }
+          setResults(updated)
+        }
+      }
+      setMessage({ type: 'success', text: 'Resultat gemt!' })
+      setTimeout(() => setMessage(null), 2000)
+    } catch {
+      setMessage({ type: 'error', text: 'Kunne ikke gemme resultatet.' })
+    } finally {
+      setSavingIndex(null)
     }
   }
 
@@ -288,6 +326,14 @@ export default function AdminResultaterPage() {
                     <ChevronDown size={16} />
                   </button>
                 </div>
+                <button
+                  onClick={() => saveOneResult(i)}
+                  disabled={savingIndex === i}
+                  className="p-2 text-blue-500 hover:text-blue-700 transition-colors rounded-lg hover:bg-blue-50 disabled:opacity-50"
+                  title="Gem dette resultat"
+                >
+                  <Check size={16} />
+                </button>
                 <button
                   onClick={() => deleteResult(i)}
                   className="p-2 text-slate-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50"
