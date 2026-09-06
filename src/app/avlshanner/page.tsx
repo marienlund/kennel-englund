@@ -19,14 +19,16 @@ async function getMales() {
   }
   try {
     const supabase = createClient(url, key)
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('dogs')
       .select('*')
       .eq('gender', 'male')
-      .order('sort_order', { ascending: true })
       .order('name', { ascending: true })
+    if (error) throw error
     if (data && data.length > 0) return data
-  } catch {}
+  } catch (err) {
+    console.error('Avlshanner fetch error:', err)
+  }
   const dogs = await getDogs()
   return dogs.filter((d) => d.gender === 'male')
 }
