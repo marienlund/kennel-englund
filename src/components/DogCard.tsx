@@ -73,7 +73,6 @@ export default function DogCard({ dog }: { dog: Dog }) {
               href={dog.pdf_url}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
               className="inline-flex items-center gap-1 text-xs text-red-600 hover:text-red-800 mt-2 font-medium"
             >
               <FileText size={14} /> PDF
