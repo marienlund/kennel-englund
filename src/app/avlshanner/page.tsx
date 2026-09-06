@@ -2,35 +2,38 @@ import DogCard from '@/components/DogCard'
 import { getDogs } from '@/lib/data'
 import { createClient } from '@supabase/supabase-js'
 import type { Metadata } from 'next'
+import type { Dog } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export const metadata: Metadata = {
   title: 'Avlshanner | Kennel Team Englund',
   description: 'Se alle vores avlshanner med sundhedsdata, mentalbeskrivelser og resultater.',
 }
 
-async function getMales() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  if (!url || !key) {
-    const dogs = await getDogs()
-    return dogs.filter((d) => d.gender === 'male')
+async function getMales(): Promise<Dog[]> {
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    if (url && key) {
+      const supabase = createClient(url, key)
+      const { data, error } = await supabase
+        .from('dogs')
+        .select('*')
+        .eq('gender', 'male')
+        .order('name', { ascending: true })
+      if (!error && data && data.length > 0) return data as Dog[]
+    }
+  } catch (err) {
+    console.error('Avlshanner Supabase error:', err)
   }
   try {
-    const supabase = createClient(url, key)
-    const { data, error } = await supabase
-      .from('dogs')
-      .select('*')
-      .eq('gender', 'male')
-      .order('name', { ascending: true })
-    if (error) throw error
-    if (data && data.length > 0) return data
-  } catch (err) {
-    console.error('Avlshanner fetch error:', err)
+    const dogs = await getDogs()
+    return dogs.filter((d) => d.gender === 'male')
+  } catch {
+    return []
   }
-  const dogs = await getDogs()
-  return dogs.filter((d) => d.gender === 'male')
 }
 
 export default async function AvlshannerPage() {
