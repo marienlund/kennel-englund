@@ -1,8 +1,7 @@
 import Link from 'next/link'
 import { HOME_FEATURE_DEFAULTS } from '@/lib/home-features'
-import DogCard from '@/components/DogCard'
 import NewsCard from '@/components/NewsCard'
-import { getFeaturedDogs, getLatestNews } from '@/lib/data'
+import { getLatestNews } from '@/lib/data'
 import { ArrowRight, Heart, Shield, Award } from 'lucide-react'
 import { createServerSupabase } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
@@ -56,26 +55,7 @@ export default async function HomePage() {
     return getLatestNews(3)
   }
 
-  // Fetch featured dogs from Supabase
-  async function getSupabaseFeatured() {
-    try {
-      const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      if (url && key) {
-        const supabase = createClient(url, key)
-        const { data } = await supabase
-          .from('dogs')
-          .select('*')
-          .eq('is_featured', true)
-          .order('name')
-        if (data && data.length > 0) return data
-      }
-    } catch {}
-    return getFeaturedDogs()
-  }
-
-  const [featuredDogs, latestNews, settings] = await Promise.all([
-    getSupabaseFeatured(),
+  const [latestNews, settings] = await Promise.all([
     getSupabaseNews(),
     getSiteSettings(),
   ])
@@ -164,28 +144,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Featured dogs */}
-      {featuredDogs.length > 0 && (
-        <section className="py-16 lg:py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Vores hunde</h2>
-              <Link
-                href="/hunde"
-                className="text-blue-700 hover:text-blue-800 font-medium text-sm flex items-center gap-1"
-              >
-                Se alle <ArrowRight size={16} />
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredDogs.map((dog) => (
-                <DogCard key={dog.id} dog={dog} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Latest news */}
       {latestNews.length > 0 && (
