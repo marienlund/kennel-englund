@@ -2,6 +2,8 @@ import DogCard from '@/components/DogCard'
 import { getDogs } from '@/lib/data'
 import { createClient } from '@supabase/supabase-js'
 import type { Metadata } from 'next'
+import type { Dog } from '@/lib/types'
+import { dogOrderKey, parseDogOrder, orderDogs } from '@/lib/dog-order'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,20 +17,18 @@ async function getFemales() {
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   if (!url || !key) {
     const dogs = await getDogs()
-    return dogs.filter((d) => d.gender === 'female')
+    return orderDogs(dogs.filter((d) => d.gender === 'female'), [])
   }
   try {
     const supabase = createClient(url, key)
-    const { data } = await supabase
-      .from('dogs')
-      .select('*')
-      .eq('gender', 'female')
-      .order('sort_order', { ascending: true })
-      .order('name', { ascending: true })
-    if (data && data.length > 0) return data
+    const [dogResult, orderResult] = await Promise.all([
+      supabase.from('dogs').select('*').eq('gender', 'female').order('name'),
+      supabase.from('site_settings').select('value').eq('id', dogOrderKey('female')).maybeSingle(),
+    ])
+    if (dogResult.data) return orderDogs(dogResult.data as Dog[], parseDogOrder(orderResult.data?.value))
   } catch {}
   const dogs = await getDogs()
-  return dogs.filter((d) => d.gender === 'female')
+  return orderDogs(dogs.filter((d) => d.gender === 'female'), [])
 }
 
 export default async function AvlstaeverPage() {
