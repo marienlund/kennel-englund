@@ -3,8 +3,9 @@
 import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Save, Upload, Image as ImageIcon } from 'lucide-react'
+import { HOME_FEATURE_DEFAULTS, HOME_FEATURE_FIELDS } from '@/lib/home-features'
 
-interface SiteSettings {
+type SiteSettings = typeof HOME_FEATURE_DEFAULTS & {
   hero_image_url: string
   hero_title: string
   hero_subtitle: string
@@ -13,6 +14,7 @@ interface SiteSettings {
 }
 
 const DEFAULTS: SiteSettings = {
+  ...HOME_FEATURE_DEFAULTS,
   hero_image_url: '',
   hero_title: 'Kennel Team Englund',
   hero_subtitle: 'Schæferhundeopdræt siden 1984',
@@ -30,41 +32,40 @@ export default function AdminForsidePage() {
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    loadSettings()
+    let cancelled = false
+    async function loadSettings() {
+      try {
+        const supabase = createClient()
+        const { data, error } = await supabase.from('site_settings').select('id, value')
+        if (error) throw error
+        const loaded: Partial<SiteSettings> = {}
+        for (const row of data || []) {
+          if (Object.hasOwn(DEFAULTS, row.id)) {
+            loaded[row.id as keyof SiteSettings] = row.value
+          }
+        }
+        if (!cancelled) setSettings({ ...DEFAULTS, ...loaded })
+      } catch {
+        if (!cancelled) setNoTable(true)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    void loadSettings()
+    return () => { cancelled = true }
   }, [])
 
-  async function loadSettings() {
-    try {
-      const supabase = createClient()
-      const { data, error } = await supabase.from('site_settings').select('id, value')
-      if (error) throw error
-
-      const loaded: Partial<SiteSettings> = {}
-      for (const row of data || []) {
-        if (row.id in DEFAULTS) {
-          loaded[row.id as keyof SiteSettings] = row.value
-        }
-      }
-      setSettings({ ...DEFAULTS, ...loaded })
-    } catch {
-      setNoTable(true)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   async function handleSave() {
+    if (saving || uploading || noTable) return
     setSaving(true)
     setMessage(null)
     try {
       const supabase = createClient()
-      const entries = Object.entries(settings)
-      for (const [key, value] of entries) {
-        const { error } = await supabase
-          .from('site_settings')
-          .upsert({ id: key, value, updated_at: new Date().toISOString() })
-        if (error) throw error
-      }
+      const updatedAt = new Date().toISOString()
+      const { error } = await supabase.from('site_settings').upsert(
+        Object.entries(settings).map(([id, value]) => ({ id, value, updated_at: updatedAt }))
+      )
+      if (error) throw error
       setMessage({ type: 'success', text: 'Indstillinger gemt!' })
     } catch {
       setMessage({ type: 'error', text: 'Kunne ikke gemme. Er Supabase konfigureret og SQL kørt?' })
@@ -92,7 +93,7 @@ export default function AdminForsidePage() {
         .from('dog-photos')
         .getPublicUrl(fileName)
 
-      setSettings({ ...settings, hero_image_url: urlData.publicUrl })
+      setSettings(current => ({ ...current, hero_image_url: urlData.publicUrl }))
       setMessage({ type: 'success', text: 'Billede uploadet! Husk at gemme.' })
     } catch {
       setMessage({ type: 'error', text: 'Kunne ikke uploade billede. Tjek at dog-photos bucket eksisterer.' })
@@ -111,7 +112,7 @@ export default function AdminForsidePage() {
         <h1 className="text-2xl font-bold text-slate-900">Forside</h1>
         <button
           onClick={handleSave}
-          disabled={saving || noTable}
+          disabled={saving || uploading || noTable}
           className="inline-flex items-center gap-2 bg-blue-700 hover:bg-blue-800 disabled:bg-blue-400 text-white font-semibold px-4 py-2 rounded-lg transition-colors text-sm"
         >
           <Save size={16} /> {saving ? 'Gemmer...' : 'Gem ændringer'}
@@ -120,12 +121,12 @@ export default function AdminForsidePage() {
 
       {noTable && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg px-4 py-3 text-sm mb-4">
-          ⚠️ Tabellen <code>site_settings</code> findes ikke endnu. Kør SQL-scriptet <code>supabase-site-settings.sql</code> i Supabase SQL Editor først.
+          Indstillingerne kunne ikke indlæses. Genindlæs siden for at prøve igen.
         </div>
       )}
 
       {message && (
-        <div className={`rounded-lg px-4 py-3 text-sm mb-4 ${
+        <div role="status" className={`rounded-lg px-4 py-3 text-sm mb-4 ${
           message.type === 'success'
             ? 'bg-green-50 border border-green-200 text-green-800'
             : 'bg-red-50 border border-red-200 text-red-800'
@@ -134,7 +135,7 @@ export default function AdminForsidePage() {
         </div>
       )}
 
-      <div className="space-y-6">
+      <fieldset disabled={saving || noTable} className="space-y-6 min-w-0">
         {/* Hero image */}
         <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
           <h2 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
@@ -157,7 +158,7 @@ export default function AdminForsidePage() {
             />
             <button
               onClick={() => fileRef.current?.click()}
-              disabled={uploading || noTable}
+              disabled={uploading || saving || noTable}
               className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 disabled:bg-slate-50 text-slate-700 font-medium px-4 py-2 rounded-lg transition-colors text-sm"
             >
               <Upload size={16} /> {uploading ? 'Uploader...' : 'Upload nyt billede'}
@@ -169,6 +170,30 @@ export default function AdminForsidePage() {
             </div>
           )}
         </div>
+
+        <section className="bg-white rounded-xl shadow-md border border-slate-200 p-6" aria-labelledby="home-features-heading">
+          <h2 id="home-features-heading" className="font-bold text-slate-900 mb-2">De tre felter på forsiden</h2>
+          <p className="text-sm text-slate-500 mb-5">Redigér overskriften og teksten under hvert ikon. Klik på “Gem ændringer”, når du er færdig.</p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {HOME_FEATURE_FIELDS.map(field => (
+              <div key={field.titleKey} className="min-w-0 space-y-3">
+                <h3 className="font-semibold text-slate-800">{field.label}</h3>
+                <label className="block text-sm font-medium text-slate-700">
+                  Overskrift
+                  <input type="text" value={settings[field.titleKey]}
+                    onChange={e => setSettings(current => ({ ...current, [field.titleKey]: e.target.value }))}
+                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600 outline-none" />
+                </label>
+                <label className="block text-sm font-medium text-slate-700">
+                  Tekst
+                  <textarea rows={5} value={settings[field.textKey]}
+                    onChange={e => setSettings(current => ({ ...current, [field.textKey]: e.target.value }))}
+                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600 outline-none resize-y" />
+                </label>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {/* Text fields */}
         <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
@@ -216,7 +241,7 @@ export default function AdminForsidePage() {
             </div>
           </div>
         </div>
-      </div>
+      </fieldset>
     </div>
   )
 }

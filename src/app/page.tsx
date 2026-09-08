@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { HOME_FEATURE_DEFAULTS } from '@/lib/home-features'
 import DogCard from '@/components/DogCard'
 import NewsCard from '@/components/NewsCard'
 import { getFeaturedDogs, getLatestNews } from '@/lib/data'
@@ -10,6 +11,7 @@ export const dynamic = 'force-dynamic'
 
 // Default values (fallback if Supabase not available)
 const DEFAULTS = {
+  ...HOME_FEATURE_DEFAULTS,
   hero_image_url: '',
   hero_title: 'Kennel Team Englund',
   hero_subtitle: 'Schæferhundeopdræt siden 1984',
@@ -136,30 +138,27 @@ export default async function HomePage() {
               <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Heart className="text-blue-700" size={24} />
               </div>
-              <h3 className="font-bold text-lg mb-2">Mentalitet først</h3>
-              <p className="text-slate-600 text-sm">
-                Vi prioriterer et stærkt nervesystem, selvsikkerhed og god kontakt. 
-                Alle hunde er mentalt beskrevne.
+              <h3 className="font-bold text-lg mb-2 break-words">{settings.feature_1_title}</h3>
+              <p className="text-slate-600 text-sm whitespace-pre-line break-words">
+                {settings.feature_1_text}
               </p>
             </div>
             <div className="text-center">
               <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Shield className="text-blue-700" size={24} />
               </div>
-              <h3 className="font-bold text-lg mb-2">Sundhed i fokus</h3>
-              <p className="text-slate-600 text-sm">
-                Alle avlsdyr er HD/AD-røntgenfotograferet og OCD-undersøgt. 
-                Vi avler kun på sunde, kårede hunde.
+              <h3 className="font-bold text-lg mb-2 break-words">{settings.feature_2_title}</h3>
+              <p className="text-slate-600 text-sm whitespace-pre-line break-words">
+                {settings.feature_2_text}
               </p>
             </div>
             <div className="text-center">
               <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Award className="text-blue-700" size={24} />
               </div>
-              <h3 className="font-bold text-lg mb-2">Resultater</h3>
-              <p className="text-slate-600 text-sm">
-                Vores hunde præsterer på højt niveau i både udstilling og brugsprøver — 
-                fra klubskuer til Bundessieger.
+              <h3 className="font-bold text-lg mb-2 break-words">{settings.feature_3_title}</h3>
+              <p className="text-slate-600 text-sm whitespace-pre-line break-words">
+                {settings.feature_3_text}
               </p>
             </div>
           </div>
