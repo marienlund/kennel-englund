@@ -28,22 +28,24 @@ function HealthBadge({ label, value }: { label: string; value: string | null }) 
   )
 }
 
-export default function DogCard({ dog }: { dog: Dog }) {
+export default function DogCard({ dog, uniformPhoto = false }: { dog: Dog; uniformPhoto?: boolean }) {
   const age = dog.birthdate ? calculateAge(dog.birthdate) : null
 
   return (
     <Link href={`/hunde/${dog.id}`} className="group block">
       <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow overflow-hidden border border-slate-200">
         {/* Photo */}
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden">
+        <div className={`bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden ${uniformPhoto ? 'relative aspect-[4/3]' : ''}`}>
           {dog.photo_url ? (
             <img
               src={dog.photo_url}
               alt={dog.name}
-              className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-300"
+              className={uniformPhoto
+                ? 'absolute inset-0 w-full h-full object-cover object-center'
+                : 'w-full h-auto object-contain group-hover:scale-105 transition-transform duration-300'}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
+            <div className={`w-full h-full flex items-center justify-center ${uniformPhoto ? 'absolute inset-0' : ''}`}>
               <span className="text-6xl opacity-60 group-hover:scale-110 transition-transform">
                 {dog.gender === 'male' ? '🐕' : '🐕‍🦺'}
               </span>
