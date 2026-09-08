@@ -47,7 +47,7 @@ export default async function AvlstaeverPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {females.map((dog) => (
-          <DogCard key={dog.id} dog={dog} />
+          <DogCard key={dog.id} dog={dog} uniformPhoto />
         ))}
       </div>
     </div>

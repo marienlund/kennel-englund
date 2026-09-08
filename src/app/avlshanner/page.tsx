@@ -44,7 +44,7 @@ export default async function AvlshannerPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {males.map((dog) => (
-            <DogCard key={dog.id} dog={dog} />
+            <DogCard key={dog.id} dog={dog} uniformPhoto />
           ))}
         </div>
       )}
