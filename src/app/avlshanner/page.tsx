@@ -1,6 +1,8 @@
 import DogCard from '@/components/DogCard'
 import { createClient } from '@supabase/supabase-js'
 import type { Metadata } from 'next'
+import type { Dog } from '@/lib/types'
+import { dogOrderKey, parseDogOrder, orderDogs } from '@/lib/dog-order'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,19 +12,18 @@ export const metadata: Metadata = {
 }
 
 export default async function AvlshannerPage() {
-  let males: any[] = []
+  let males: Dog[] = []
 
   try {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     if (url && key) {
       const supabase = createClient(url, key)
-      const { data } = await supabase
-        .from('dogs')
-        .select('*')
-        .eq('gender', 'male')
-        .order('name')
-      if (data) males = data
+      const [dogResult, orderResult] = await Promise.all([
+        supabase.from('dogs').select('*').eq('gender', 'male').order('name'),
+        supabase.from('site_settings').select('value').eq('id', dogOrderKey('male')).maybeSingle(),
+      ])
+      if (dogResult.data) males = orderDogs(dogResult.data as Dog[], parseDogOrder(orderResult.data?.value))
     }
   } catch (e) {
     console.error('Avlshanner error:', e)

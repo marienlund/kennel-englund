@@ -15,6 +15,7 @@ export interface Dog {
   extra_info?: string | null
   photo_url?: string | null
   pdf_url?: string | null
+  sort_order?: number | null
   is_featured: boolean
   created_at: string
   updated_at: string
