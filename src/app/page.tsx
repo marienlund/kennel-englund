@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { HOME_FEATURE_DEFAULTS } from '@/lib/home-features'
 import NewsCard from '@/components/NewsCard'
 import { getLatestNews } from '@/lib/data'
-import { ArrowRight, Heart, Shield, Award } from 'lucide-react'
+import { Heart, Shield, Award } from 'lucide-react'
 import { createServerSupabase } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
 
@@ -93,12 +93,6 @@ export default async function HomePage() {
               {settings.intro_text_2}
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
-              <Link
-                href="/hunde"
-                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
-              >
-                Se vores hunde <ArrowRight size={18} />
-              </Link>
               <Link
                 href="/hvalpe"
                 className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-blue-50 font-semibold px-6 py-3 rounded-lg transition-colors border border-white/20"
