@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { getWorkingDogUrl, isWorkingDogProfileUrl } from '@/lib/working-dog'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -46,6 +47,7 @@ export default function EditHundPage() {
     ocd_status: '',
     mental_description: '',
     training_results: '',
+    working_dog_url: '',
     achievements: '',
     is_featured: false,
     sort_order: 0,
@@ -67,6 +69,7 @@ export default function EditHundPage() {
         ocd_status: data.ocd_status || '',
         mental_description: data.mental_description || '',
         training_results: data.training_results || '',
+        working_dog_url: getWorkingDogUrl(data),
         achievements: data.achievements || '',
         is_featured: data.is_featured || false,
         sort_order: data.sort_order || 0,
@@ -92,6 +95,7 @@ export default function EditHundPage() {
           ocd_status: mock.ocd_status || '',
           mental_description: mock.mental_description || '',
           training_results: mock.training_results || '',
+          working_dog_url: getWorkingDogUrl(mock),
           achievements: mock.achievements || '',
           is_featured: mock.is_featured,
           sort_order: 0,
@@ -237,6 +241,10 @@ export default function EditHundPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (form.working_dog_url.trim() && !isWorkingDogProfileUrl(form.working_dog_url.trim())) {
+      setError('Indsæt et link til hundens profil på Working Dog (https://…working-dog.com/dogs-details/…).')
+      return
+    }
     setError(null)
     setSaving(true)
 
@@ -278,6 +286,7 @@ export default function EditHundPage() {
         ocd_status: form.ocd_status || null,
         mental_description: form.mental_description || null,
         training_results: form.training_results || null,
+        working_dog_url: form.working_dog_url.trim(),
         achievements: form.achievements || null,
         sort_order: parseInt(String(form.sort_order)) || 0,
         updated_at: new Date().toISOString(),
@@ -551,6 +560,19 @@ export default function EditHundPage() {
             </div>
           </div>
         </div>
+
+        <section className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
+          <h2 className="font-bold text-slate-900 mb-3">Working Dog</h2>
+          <label htmlFor="working-dog-url" className="block text-sm font-medium text-slate-700 mb-1">Link til hundens profil</label>
+          <input id="working-dog-url" type="url" value={form.working_dog_url}
+            onChange={e => update('working_dog_url', e.target.value)}
+            placeholder="https://www.working-dog.com/dogs-details/..."
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600 outline-none" />
+          <p className="text-sm text-slate-500 mt-2">Kopiér adressen fra hundens profil på Working Dog. Linket vises på hundens side, når du gemmer.</p>
+          {isWorkingDogProfileUrl(form.working_dog_url.trim()) && (
+            <a href={form.working_dog_url.trim()} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-sm text-blue-700 underline">Åbn profilen og kontrollér linket ↗</a>
+          )}
+        </section>
 
         <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
           <h2 className="font-bold text-slate-900 mb-4">Beskrivelse</h2>
