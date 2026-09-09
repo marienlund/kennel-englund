@@ -1,5 +1,6 @@
 import { Dog, Litter, News } from './types'
 import { createClient } from '@supabase/supabase-js'
+import { getWorkingDogUrl } from './working-dog'
 import { mockDogs, mockLitters, mockNews } from './mock-data'
 
 // Legacy lists retain their fallback data. Dog details resolve the live
@@ -26,7 +27,8 @@ export async function getDog(id: string): Promise<Dog | null> {
   const { data, error } = await supabase.from('dogs').select('*').eq('id', id).maybeSingle()
   // Do not misreport a temporary database failure as a missing dog.
   if (error) throw new Error('Kunne ikke hente hundens oplysninger. Prøv igen om lidt.')
-  return (data as Dog | null) ?? fallback
+  const dog = (data as Dog | null) ?? fallback
+  return dog ? { ...dog, working_dog_url: getWorkingDogUrl(dog) } : null
 }
 
 export async function getLitters(): Promise<Litter[]> {
