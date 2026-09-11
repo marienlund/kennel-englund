@@ -1,6 +1,8 @@
 import NewsCard from '@/components/NewsCard'
 import { getLatestNews } from '@/lib/data'
 
+export const dynamic = 'force-dynamic'
+
 export default async function NyhederPage() {
   const news = await getLatestNews(20)
 
