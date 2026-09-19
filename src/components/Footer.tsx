@@ -23,7 +23,7 @@ export default function Footer() {
             </ul>
           </div>
           <div className="flex items-center justify-start md:-ml-8">
-            <img src="/logo.jpg" alt="Team Englund Working Dogs" className="w-44 h-auto rounded-lg shadow-lg" />
+            <img src="/logo.jpg" alt="Team Englund Working Dogs" className="w-56 h-auto rounded-lg shadow-lg" />
           </div>
           <div>
             <h3 className="text-blue-50 font-bold text-lg mb-3">Kontakt</h3>
