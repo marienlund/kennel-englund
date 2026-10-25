@@ -36,7 +36,7 @@ export async function getLitters(): Promise<Litter[]> {
 }
 
 // Public pages read the same records as the news editor, without a cached copy.
-async function queryNews(limit?: number): Promise<News[]> {
+async function queryNews(limit?: number, id?: string): Promise<News[]> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   if (!url || !key) return []
@@ -48,6 +48,7 @@ async function queryNews(limit?: number): Promise<News[]> {
     },
   })
   let query = supabase.from('news').select('*').order('published_at', { ascending: false })
+  if (id !== undefined) query = query.eq('id', id)
   if (limit !== undefined) query = query.limit(limit)
   const { data, error } = await query
   if (error) throw new Error('Kunne ikke hente nyheder. Prøv igen om lidt.')
@@ -56,6 +57,12 @@ async function queryNews(limit?: number): Promise<News[]> {
 
 export async function getNews(): Promise<News[]> {
   return queryNews()
+}
+
+export async function getNewsItem(id: string): Promise<News | null> {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return null
+  const news = await queryNews(1, id)
+  return news[0] ?? null
 }
 
 export async function getLatestNews(limit = 3): Promise<News[]> {
