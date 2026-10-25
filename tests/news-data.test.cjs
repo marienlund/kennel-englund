@@ -55,3 +55,26 @@ test('reports database errors instead of displaying made-up news', async () => {
   state.rows = { message: 'Access denied', code: '42501' }
   await assert.rejects(api.getLatestNews(), /Kunne ikke hente nyheder/)
 })
+
+test('looks up an individual article by its ID without truncating its content', async () => {
+  const { api, state } = loadNewsModule()
+  const id = '12345678-1234-1234-1234-123456789abc'
+  const content = 'Første afsnit.\n\n' + 'Hele nyheden fortsætter her. '.repeat(60)
+  state.rows = [{ id, title: 'Hele nyheden', content }]
+  const item = await api.getNewsItem(id)
+  assert.equal(item.content, content)
+  assert.equal(state.requests[0].url.searchParams.get('id'), `eq.${id}`)
+  assert.equal(state.requests[0].url.searchParams.get('limit'), '1')
+  assert.equal(state.requests[0].init.cache, 'no-store')
+})
+
+test('missing or invalid article IDs return no article, while database errors remain errors', async () => {
+  const { api, state } = loadNewsModule()
+  assert.equal(await api.getNewsItem('ikke-et-id'), null)
+  assert.equal(state.requests.length, 0)
+  const id = '12345678-1234-1234-1234-123456789abc'
+  assert.equal(await api.getNewsItem(id), null)
+  state.status = 503
+  state.rows = { message: 'Unavailable' }
+  await assert.rejects(api.getNewsItem(id), /Kunne ikke hente nyheder/)
+})
