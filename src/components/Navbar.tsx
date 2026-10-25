@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { LogIn } from 'lucide-react'
+import FacebookLink from '@/components/FacebookLink'
 
 const links = [
   { href: '/', label: 'Forside' },
@@ -32,12 +33,15 @@ export default function Navbar() {
               </Link>
             ))}
           </div>
-          <Link
-            href="/login"
-            className="order-2 xl:order-3 inline-flex shrink-0 items-center gap-2 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition-colors"
-          >
-            <LogIn size={16} aria-hidden="true" /> Admin
-          </Link>
+          <div className="order-2 xl:order-3 flex shrink-0 items-center gap-2">
+            <FacebookLink />
+            <Link
+              href="/login"
+              className="inline-flex shrink-0 items-center gap-2 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition-colors"
+            >
+              <LogIn size={16} aria-hidden="true" /> Admin
+            </Link>
+          </div>
         </div>
       </div>
     </nav>
