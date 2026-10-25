@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import FacebookLink from '@/components/FacebookLink'
 
 export default function Footer() {
   return (
@@ -31,6 +32,9 @@ export default function Footer() {
               <li>📞 <a href="tel:+4520137884" className="hover:text-blue-200 transition-colors">+45 2013 7884</a></li>
               <li>📍 Danmark</li>
             </ul>
+            <div className="mt-4 -ml-2">
+              <FacebookLink showLabel />
+            </div>
           </div>
         </div>
 
