@@ -56,7 +56,10 @@ export default async function KontaktPage() {
                   <p className="font-semibold">{settings.contact_phone}</p>
                 </div>
               </a>
-              <div className="flex items-center gap-3 text-slate-700">
+              <a
+                href={`mailto:${settings.contact_email.trim()}`}
+                className="flex items-center gap-3 rounded-md text-slate-700 hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-700 transition-colors"
+              >
                 <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <Mail size={18} className="text-blue-700" />
                 </div>
@@ -64,7 +67,7 @@ export default async function KontaktPage() {
                   <p className="text-xs text-slate-500 uppercase tracking-wider font-medium">Email</p>
                   <p className="font-semibold">{settings.contact_email}</p>
                 </div>
-              </div>
+              </a>
               <div className="flex items-center gap-3 text-slate-700">
                 <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <MapPin size={18} className="text-blue-700" />
